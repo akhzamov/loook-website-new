@@ -1,0 +1,75 @@
+{
+  "locale": {
+    "en": "English",
+    "ru": "Русский",
+    "uz": "O'zbekcha"
+  },
+  "header": {
+    "home": "Главная",
+    "vacancy": "Вакансии",
+    "ourAddresses": "Филиалы",
+    "contacts": "Контакты",
+    "cart": "Корзина"
+  },
+  "product": {
+    "addToCart": "В Корзину",
+    "currency": "сум",
+    "added": "добавлен в карзину"
+  },
+  "contacts": {
+    "title": "Контакты",
+    "callCenter": "Call-Центр / Доставка:",
+    "officeTitle": "Адрес офиса:",
+    "office": "г. Ташкент, Юнусабадский р-н., 13-й квартал, улица Ахмада Дониша, 1А",
+    "workTime": "Часы работы офиса:",
+    "email": "Электронная почта:",
+    "bot": "Вы можете заказать доставку через наш бот:"
+  },
+  "cart": {
+    "emptyTitle": "Ой, пусто!",
+    "emptySub": "Ваша корзина пуста, откройте «Меню» и выберите понравившийся товар.",
+    "emptyBtn": "Добавить в корзину",
+    "mainTopTitle": "Ваша корзина",
+    "mainTopClear": "Очистить корзину",
+    "mainCurrency": "сум",
+    "mainTotal": "Итого:",
+    "mainCheckout": "Оформить заказ"
+  },
+  "checkout": {
+    "title": "Оформить заказ",
+    "info": "Личные данные",
+    "infoName": "Имя",
+    "orders": "Ваш заказ",
+    "orderCurrency": "сум",
+    "address": "Адрес доставки",
+    "addressPlaceholder": "Адрес",
+    "paymentType": "Тип оплаты",
+    "paymentCash": "Наличные",
+    "paymentOnline": "Онлайн оплата",
+    "total": "Итого",
+    "orderSum": "Стоимость заказа",
+    "deliveryPrice": "Цена доставки",
+    "unknown": "Неизвесто",
+    "deliveryTime": "Время доставки",
+    "dMinutes": "от 40 мин",
+    "totalSum": "Общая сумма",
+    "confirm": "Подтвердить",
+    "swal": {
+      "checkOrder": "Вы проверили свой заказ?",
+      "checkOrderYes": "Да",
+      "checkOrderNo": "Нет",
+      "ordreCancel": "Заказ не отправлен!",
+      "phoneErrorText": "Введите корректный номер телефона!",
+      "formErrorText": "Заполните форму!",
+      "oops": "Упс...",
+      "orderAcceptTitle": "Благодарим за ваш заказ!",
+      "orderAcceptText": "В ближайшее время с вами свяжется наш оператор."
+    }
+  },
+  "footer": {
+    "findUsMap": "Найдите нас на карте",
+    "vacancy": "Вакансии",
+    "address": "Наши Адреса",
+    "menu": "Меню"
+  }
+}

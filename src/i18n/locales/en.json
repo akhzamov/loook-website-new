@@ -1,0 +1,75 @@
+{
+  "locale": {
+    "en": "English",
+    "ru": "Русский",
+    "uz": "O'zbekcha"
+  },
+  "header": {
+    "home": "Home",
+    "vacancy": "Vacancy",
+    "ourAddresses": "Branches",
+    "contacts": "Contacts",
+    "cart": "Cart"
+  },
+  "product": {
+    "addToCart": "Add To Cart",
+    "currency": "uzs",
+    "added": "added to cart"
+  },
+  "contacts": {
+    "title": "Contacts",
+    "callCenter": "Call-Center / Delivery:",
+    "officeTitle": "Office adress:",
+    "office": "Tashkent, Yunusabad district, 13th block, Akhmad Donish street, 1A",
+    "workTime": "Office hours:",
+    "email": "Email:",
+    "bot": "You can order delivery through our bot:"
+  },
+  "cart": {
+    "emptyTitle": "Oh, empty!",
+    "emptySub": "Your cart is empty, open the «Menu» and select the product you like.",
+    "emptyBtn": "Add to Cart",
+    "mainTopTitle": "Your cart",
+    "mainTopClear": "Claer cart",
+    "mainCurrency": "uzs",
+    "mainTotal": "Total:",
+    "mainCheckout": "Checkout"
+  },
+  "checkout": {
+    "title": "Checkout",
+    "info": "Personal data",
+    "infoName": "Name",
+    "orders": "Your order",
+    "orderCurrency": "uzs",
+    "address": "Address",
+    "addressPlaceholder": "Address",
+    "paymentType": "Payment type",
+    "paymentCash": "Cash",
+    "paymentOnline": "Online payment",
+    "total": "Total",
+    "orderSum": "Order price",
+    "deliveryPrice": "Delivery price",
+    "unknown": "Unknown",
+    "deliveryTime": "Delivery time",
+    "dMinutes": "from 40 min",
+    "totalSum": "Total Sum",
+    "confirm": "Confirm",
+    "swal": {
+      "checkOrder": "Have you checked your order?",
+      "checkOrderYes": "Yes",
+      "checkOrderNo": "No",
+      "ordreCancel": "The order has not been sent!",
+      "phoneErrorText": "Please enter a correct phone number!",
+      "formErrorText": "Fill the form!",
+      "oops": "Oops...",
+      "orderAcceptTitle": "Thank you for your order!",
+      "orderAcceptText": "Our operator will contact you shortly."
+    }
+  },
+  "footer": {
+    "findUsMap": "Find us on the map",
+    "vacancy": "Vacancy",
+    "address": "Our Addresses",
+    "menu": "Menu"
+  }
+}
