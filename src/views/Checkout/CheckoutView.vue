@@ -224,9 +224,9 @@
               </div>
             </label>
           </div>
-          <button class="checkout-pay__modal-btn">Продолжить</button>
+          <button class="checkout-pay__modal-btn" @click="sendCard">Продолжить</button>
         </div>
-        <div class="checkout-pay__modal-code" v-if="paymentSteps.two">
+        <div class="checkout-pay__modal-code" v-else-if="paymentSteps.two">
           <h3 class="checkout-pay__modal-title">Введите код</h3>
           <p class="checkout-pay__modal-sub">
             Код отправлен на номер SMS информирования владельца карты
@@ -240,14 +240,14 @@
           </div>
           <button class="checkout-pay__modal-btn">Продолжить</button>
         </div>
-        <div class="checkout-pay__modal-success" v-if="paymentSteps.three">
+        <div class="checkout-pay__modal-success" v-else-if="paymentSteps.three">
           <h3 class="checkout-pay__modal-title">Успешно!</h3>
           <p class="checkout-pay__modal-sub">
             Вы успешно провели {{ totalPrice }} сум.
           </p>
           <button class="checkout-pay__modal-btn">Завершить</button>
         </div>
-        <div class="checkout-pay__modal-loader" v-if="paymentSteps.loader">
+        <div class="checkout-pay__modal-loader" v-else-if="paymentSteps.loader">
           <span class="loader"></span>
         </div>
         <span class="checkout-pay__modal-powered">Powered by Global Pay</span>
@@ -271,7 +271,6 @@ import { vMaska } from "maska";
 import Swal from "sweetalert2";
 import { useI18n } from "vue-i18n";
 import axios from "axios";
-import qs from 'qs';
 
 const { t } = useI18n();
 
@@ -293,12 +292,12 @@ const cardNumMasked = reactive({});
 const cardDateMasked = reactive({});
 const smsCode = ref("");
 const paymentSteps = reactive({
-  one: true,
+  one: false,
   two: false,
   three: false,
-  loader: false,
+  loader: true,
 });
-const paymentModal = ref(false);
+let paymentModal = ref(false);
 
 const generalStore = useGeneralStore();
 let cartItems = computed(() => generalStore.cart);
@@ -325,22 +324,41 @@ const paymentType = reactive([
 const gPBU = "https://app.sievesapp.com/v1/public";
 
 const getTokegGP = async () => {
-  paymentSteps.one = false;
   paymentSteps.loader = true;
   axios({
     method: "POST",
     url: `${gPBU}/get-token-pay`,
-    // data: {
-    //   grant_type: "password",
-    //   client_id: "cards",
-    //   client_secret: "CCcmoAt8cI3NEY9HDN64SQD4qR8DanMh",
-    //   username: "test_merchant@gmail.com",
-    //   password: "test_password",
-    //   scope: "openid",
-    // },
   })
     .then((res) => {
-      console.log(res);
+      sessionStorage.setItem("access_token", res.data.access_token);
+      sessionStorage.setItem("id_token", res.data.id_token);
+      sessionStorage.setItem("refresh_token", res.data.refresh_token);
+      sessionStorage.setItem("token_type", res.data.token_type);
+      paymentSteps.loader = false;
+      paymentSteps.one = true;
+    })
+    .catch((err) => {
+      console.error(err);
+    });
+};
+const sendCard = async () => {
+  paymentSteps.loader = true;
+  axios({
+    method: "POST",
+    url: `${gPBU}/send-card`,
+    headers: {
+      Authorization: `Bearer ${sessionStorage.getItem("access_token")}`,
+    },
+    data: {
+      cardNumber: cardNumMasked.unmasked,
+      expiryDate: cardDateMasked.unmasked,
+    },
+  })
+    .then((res) => {
+      console.log(res.data);
+      paymentSteps.loader = false;
+      paymentSteps.one = false;
+      paymentSteps.two = true;
     })
     .catch((err) => {
       console.error(err);
