@@ -340,7 +340,7 @@ const getTokenGP = async () => {
     .catch((err) => {
       console.error(err);
     });
-};
+}; 
 const sendCard = async () => {
   paymentSteps.one = false;
   paymentSteps.loader = true;
