@@ -323,7 +323,7 @@ const paymentType = reactive([
 
 const gPBU = "https://app.sievesapp.com/v1/public";
 
-const getTokegGP = async () => {
+const getTokenGP = async () => {
   paymentSteps.loader = true;
   axios({
     method: "POST",
@@ -342,6 +342,7 @@ const getTokegGP = async () => {
     });
 };
 const sendCard = async () => {
+  paymentSteps.one = false;
   paymentSteps.loader = true;
   axios({
     method: "POST",
@@ -357,7 +358,6 @@ const sendCard = async () => {
     .then((res) => {
       console.log(res.data);
       paymentSteps.loader = false;
-      paymentSteps.one = false;
       paymentSteps.two = true;
     })
     .catch((err) => {
@@ -385,7 +385,7 @@ const checkout = async () => {
           );
         } else {
           paymentModal.value = true;
-          getTokegGP();
+          getTokenGP();
         }
       } else if (result.isDenied) {
         Swal.fire(`${t("checkout.swal.ordreCancel")}`, "", "info");
