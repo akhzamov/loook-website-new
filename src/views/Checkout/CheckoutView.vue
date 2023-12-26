@@ -224,12 +224,15 @@
               </div>
             </label>
           </div>
-          <button class="checkout-pay__modal-btn" @click="sendCard">Продолжить</button>
+          <button class="checkout-pay__modal-btn" @click="sendCard">
+            Продолжить
+          </button>
         </div>
         <div class="checkout-pay__modal-code" v-else-if="paymentSteps.two">
           <h3 class="checkout-pay__modal-title">Введите код</h3>
           <p class="checkout-pay__modal-sub">
-            Код отправлен на номер SMS информирования владельца карты
+            Код отправлен на номер <br />
+            {{ smsNotificationNumber }}
           </p>
           <div class="checkout-pay__modal-code-check">
             <v-otp-input
@@ -238,7 +241,9 @@
               v-model="smsCode"
             ></v-otp-input>
           </div>
-          <button class="checkout-pay__modal-btn">Продолжить</button>
+          <button class="checkout-pay__modal-btn" @click="confirmCard">
+            Продолжить
+          </button>
         </div>
         <div class="checkout-pay__modal-success" v-else-if="paymentSteps.three">
           <h3 class="checkout-pay__modal-title">Успешно!</h3>
@@ -271,6 +276,7 @@ import { vMaska } from "maska";
 import Swal from "sweetalert2";
 import { useI18n } from "vue-i18n";
 import axios from "axios";
+import { v4 as uuidv4 } from "uuid";
 
 const { t } = useI18n();
 
@@ -320,8 +326,10 @@ const paymentType = reactive([
     title: "checkout.paymentOnline",
   },
 ]);
-
+let smsNotificationNumber = ref(null);
 const gPBU = "https://app.sievesapp.com/v1/public";
+let cardToken = ref(null);
+let uuid = ref(null);
 
 const getTokenGP = async () => {
   paymentSteps.loader = true;
@@ -340,7 +348,7 @@ const getTokenGP = async () => {
     .catch((err) => {
       console.error(err);
     });
-}; 
+};
 const sendCard = async () => {
   paymentSteps.one = false;
   paymentSteps.loader = true;
@@ -348,17 +356,101 @@ const sendCard = async () => {
     method: "POST",
     url: `${gPBU}/send-card`,
     headers: {
-      Authorization: `Bearer ${sessionStorage.getItem("access_token")}`,
+      Authorization: `${sessionStorage.getItem("access_token")}`,
     },
     data: {
       cardNumber: cardNumMasked.unmasked,
-      expiryDate: cardDateMasked.unmasked,
+      expiryDate:
+        cardDateMasked.unmasked.substring(2) +
+        cardDateMasked.unmasked.substring(0, 2),
+      smsNotificationNumber: "",
+    },
+  })
+    .then((res) => {
+      if (res.data.detail && !res.data.cardToken) {
+        console.log("hato");
+      } else {
+        paymentSteps.loader = false;
+        paymentSteps.two = true;
+        cardToken.value = res.data.cardToken;
+        smsNotificationNumber.value = res.data.smsNotificationNumber;
+      }
+    })
+    .catch((err) => {
+      console.error(err);
+    });
+};
+const confirmCard = async () => {
+  paymentSteps.two = false;
+  paymentSteps.loader = true;
+  axios({
+    method: "POST",
+    url: `${gPBU}/confirm-card`,
+    headers: {
+      Authorization: `${sessionStorage.getItem("access_token")}`,
+      token: `${cardToken.value}`,
+    },
+    data: {
+      code: smsCode.value,
+    },
+  })
+    .then(async (res) => {
+      sessionStorage.setItem("confirmToken", res.data.token);
+      paymentInit();
+    })
+    .catch((err) => {
+      console.error(err);
+    });
+};
+const paymentInit = async () => {
+  uuid.value = uuidv4();
+  sessionStorage.setItem("externalId", uuid.value);
+  axios({
+    method: "POST",
+    url: `${gPBU}/payment-init`,
+    headers: {
+      Authorization: `${sessionStorage.getItem("access_token")}`,
+      token: `${cardToken.value}`,
+    },
+    data: {
+      externalId: sessionStorage.getItem("externalId"),
+      serviceId: 303,
+      paymentFields: [
+        {
+          value: "UZS",
+          name: "currency",
+        },
+        {
+          value: "200000",
+          name: "amount",
+        },
+      ],
     },
   })
     .then((res) => {
       console.log(res.data);
-      paymentSteps.loader = false;
-      paymentSteps.two = true;
+      paymentPerform(res.data.id);
+    })
+    .catch((err) => {
+      console.error(err);
+    });
+};
+const paymentPerform = async (paymentInitID) => {
+  axios({
+    method: "POST",
+    url: `${gPBU}/payment-perform`,
+    headers: {
+      Authorization: `${sessionStorage.getItem("access_token")}`,
+      token: `${cardToken.value}`,
+    },
+    data: {
+      externalId: sessionStorage.getItem("externalId"),
+      id: paymentInitID,
+      cardToken: cardToken.value,
+    },
+  })
+    .then((res) => {
+      console.log(res.data);
     })
     .catch((err) => {
       console.error(err);
