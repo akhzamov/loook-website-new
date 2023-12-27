@@ -31,6 +31,14 @@ const router = createRouter({
       component: () => import("../views/Checkout/CheckoutView.vue"),
     },
     {
+      path: "/tgwbm",
+      name: "tg-web-bot-menu",
+      component: () => import("../views/TgWebBotMenu/TgWebBotMenu.vue"),
+      meta: {
+        layout: "telegram",
+      },
+    },
+    {
       path: "/:pathMatch(.*)*",
       name: "NotFound",
       component: () => import("../views/NotFound/NotFound.vue"),

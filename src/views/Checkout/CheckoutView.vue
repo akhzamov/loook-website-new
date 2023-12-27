@@ -319,12 +319,12 @@ const totalPrice = computed(() => {
 });
 const paymentType = reactive([
   { id: 1, paymentId: "cash", value: "Cash", title: "checkout.paymentCash" },
-  {
-    id: 2,
-    paymentId: "globalpay",
-    value: "Global Pay",
-    title: "checkout.paymentOnline",
-  },
+  // {
+  //   id: 2,
+  //   paymentId: "globalpay",
+  //   value: "Global Pay",
+  //   title: "checkout.paymentOnline",
+  // },
 ]);
 let smsNotificationNumber = ref(null);
 const gPBU = "https://app.sievesapp.com/v1/public";

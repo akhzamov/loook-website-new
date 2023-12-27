@@ -1,36 +1,27 @@
 <template>
   <Loader v-if="loaderStatus" />
-  <div class="wrapper" v-else>
-    <HeaderV />
-    <AsideCart />
-    <main class="main container">
-      <router-view />
-    </main>
-    <leftFixed />
-  </div>
+  <component :is="layout">
+    <router-view :key="$route.fullPath" />
+  </component>
 </template>
 
 <script setup>
-import HeaderV from "./components/header/HeaderV.vue";
 import Loader from "./components/loader/Loader.vue";
-import AsideCart from "./components/asideCart/AsideCart.vue";
-import leftFixed from "./components/leftFixed/leftFixed.vue";
 import { useGeneralStore } from "./stores/general";
 import { computed, onBeforeMount, reactive, watch } from "vue";
+import { useRoute } from "vue-router";
 
+const route = useRoute();
 const generalStore = useGeneralStore();
 const loaderStatus = computed(() => generalStore.loader);
-let showCart = computed({
-  get() {
-    return generalStore.showCart;
-  },
-  set(newValue) {
-    return (generalStore.showCart = newValue);
-  },
-});
+const home = "home";
 
 onBeforeMount(() => {
   generalStore.getCategory();
+});
+
+const layout = computed(() => {
+  return (route.meta.layout || home) + "-layout";
 });
 </script>
 

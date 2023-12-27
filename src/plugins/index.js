@@ -1,4 +1,3 @@
-
 import vuetify from "./vuetify";
 import { createPinia } from "pinia";
 import router from "../router";
@@ -29,6 +28,9 @@ import UzcardIcon from "@/components/icons/UzcardIcon.vue";
 import VueLazyload from "vue-lazyload";
 import errorImage from "@ast/images/no-photo.png";
 
+import HomeLayoutVue from "@/layouts/HomeLayout.vue";
+import TelegramWebLayoutVue from "@/layouts/TelegramWebLayout.vue";
+
 const head = createHead();
 
 export function registerPlugins(app) {
@@ -54,6 +56,8 @@ export function registerPlugins(app) {
   app.component("creditcard-icon", CreditCardIcon);
   app.component("humo-icon", HumoIcon);
   app.component("uzcard-icon", UzcardIcon);
+  app.component("home-layout", HomeLayoutVue);
+  app.component("telegram-layout", TelegramWebLayoutVue);
   app.use(VueLazyload, {
     error: errorImage,
   });
