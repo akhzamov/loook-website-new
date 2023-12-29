@@ -331,11 +331,67 @@ const gPBU = "https://app.sievesapp.com/v1/public";
 let cardToken = ref(null);
 let uuid = ref(null);
 
+const branches = {
+  yunusabad: {
+    grant_type: "password",
+    client_id: "merchants",
+    client_secret: "Z2Kl2hdwcM4gOB27KA72D2t0lX8ryMgZ",
+    username: "yu-swizza-staging@globalpay.uz",
+    password: "yUnkRDqoe72LFKmW3CZL",
+    scope: "openid",
+    serviceId: 26,
+  },
+  chilonzor: {
+    grant_type: "password",
+    client_id: "merchants",
+    client_secret: "Z2Kl2hdwcM4gOB27KA72D2t0lX8ryMgZ",
+    username: "ch-foodex-staging@globalpay.uz",
+    password: "wtjLsvqzCYXMzMj3prJr",
+    scope: "openid",
+    serviceId: 27,
+  },
+  maximGorkiy: {
+    grant_type: "password",
+    client_id: "merchants",
+    client_secret: "Z2Kl2hdwcM4gOB27KA72D2t0lX8ryMgZ",
+    username: "m-smile-staging@globalpay.uz",
+    password: "piJ1f6aJHwvrFdD8bDrk",
+    scope: "openid",
+    serviceId: 28,
+  },
+  beruniy: {
+    grant_type: "password",
+    client_id: "merchants",
+    client_secret: "Z2Kl2hdwcM4gOB27KA72D2t0lX8ryMgZ",
+    username: "b-burgera-staging@globalpay.uz",
+    password: "Ti5G5kMZ9HPrfgzoH1Be",
+    scope: "openid",
+    serviceId: 29,
+  },
+  avaPizza: {
+    grant_type: "password",
+    client_id: "merchants",
+    client_secret: "Z2Kl2hdwcM4gOB27KA72D2t0lX8ryMgZ",
+    username: "ava-pizza-staging@globalpay.uz",
+    password: "BrkF2yj0t262bkeWocd8",
+    scope: "openid",
+    serviceId: 30,
+  },
+};
+
 const getTokenGP = async () => {
   paymentSteps.loader = true;
   axios({
     method: "POST",
     url: `${gPBU}/get-token-pay`,
+    data: {
+      grant_type: branches.yunusabad.grant_type,
+      client_id: branches.yunusabad.client_id,
+      client_secret: branches.yunusabad.client_secret,
+      username: branches.yunusabad.username,
+      password: branches.yunusabad.password,
+      scope: branches.yunusabad.scope,
+    },
   })
     .then((res) => {
       sessionStorage.setItem("access_token", res.data.access_token);
@@ -414,14 +470,14 @@ const paymentInit = async () => {
     },
     data: {
       externalId: sessionStorage.getItem("externalId"),
-      serviceId: 303,
+      serviceId: branches.yunusabad.serviceId,
       paymentFields: [
         {
           value: "UZS",
           name: "currency",
         },
         {
-          value: "200000",
+          value: "100000",
           name: "amount",
         },
       ],

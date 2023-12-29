@@ -3,7 +3,7 @@
     <nav class="lnav container">
       <div class="lnav__left">
         <router-link :to="{ name: 'home' }" class="lnav__logo">
-          <img src="@ast/images/logo.svg" alt="" />
+          <img src="@ast/images/loook-logo.png" alt="" />
         </router-link>
         <button class="lnav__left-menu" @click="menuOpen = true">
           <menu-icon :width="'30'" :height="'30'" :fill="'#fff'" />
