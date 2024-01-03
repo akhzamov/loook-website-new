@@ -9,7 +9,7 @@
   justify-content: flex-end;
   transition: 0.3s linear;
   overflow: hidden;
-  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(10px);
   &.close {
     visibility: hidden;
     opacity: 0;

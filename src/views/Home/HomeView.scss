@@ -1,5 +1,5 @@
 .home {
-  margin: 70px 0;
+  margin: 250px 0;
 
   &-swipers {
     height: 680px;
@@ -84,19 +84,25 @@
 
   &__list {
     display: grid;
-    grid-template-columns: repeat(4, 280px);
+    grid-template-columns: repeat(6, 180px);
     justify-content: center;
     grid-auto-rows: auto;
     gap: 15px;
 
     @include media(1240) {
-      grid-template-columns: repeat(3, 280px);
+      grid-template-columns: repeat(5, 180px);
     }
     @include media(960) {
-      grid-template-columns: repeat(2, 280px);
+      grid-template-columns: repeat(4, 180px);
     }
-    @include media(630) {
-      grid-template-columns: repeat(1, 280px);
+    @include media(790) {
+      grid-template-columns: repeat(3, 180px);
+    }
+    @include media(590) {
+      grid-template-columns: repeat(2, 180px);
+    }
+    @include media(420) {
+      grid-template-columns: repeat(2, 150px);
     }
   }
 }

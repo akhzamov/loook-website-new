@@ -9,7 +9,9 @@
     "vacancy": "Vacancy",
     "ourAddresses": "Branches",
     "contacts": "Contacts",
-    "cart": "Cart"
+    "cart": "Cart",
+    "lang":"Select lang"
+    
   },
   "product": {
     "addToCart": "Add To Cart",

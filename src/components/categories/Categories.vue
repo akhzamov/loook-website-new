@@ -1,49 +1,26 @@
 <template>
-  <div
-    class="categories"
-    ref="categoriesDiv"
-    :class="{ sticky: categoriesFixed }"
-    id="categoriesDiv"
-  >
-    <div class="swiper-prev" @click="slider.slidePrev()">
-      <leftarrow-icon :width="'35'" :height="'35px'" />
-    </div>
-    <swiper
-      @swiper="onSwiper"
-      :spaceBetween="35"
-      :modules="modules"
-      class="categories__swiper"
-      :breakpoints="breakpoints"
-    >
+  <div class="categories" v-if="$route.fullPath == '/'">
+    <div class="categories__list">
       <template v-for="category in categories" :key="category.id">
-        <swiper-slide
+        <div
+          class="categories__item"
           v-if="
             !category.name.toLowerCase().includes('ava') &&
-            category.products.length != 0
+            category.products.length != 0 &&
+            category.name != 'Festive (tog’ora)_11_T'
           "
-          class="categories__swiper-slider"
+          @click="scrollToCategory(category.id)"
         >
-          <li
-            class="categories__swiper-item"
-            @click="scrollToCategory(category.id)"
-          >
-            <span class="categories__swiper-item-span">
-              {{ category.name.slice(0, category.name.indexOf("_")) }}
-            </span>
-          </li>
-        </swiper-slide>
+          <img
+            :src="`${imgUrl}/${category.photo.path}/${category.photo.name}.${category.photo.format}`"
+            alt=""
+            class="categories__item-img"
+          />
+          <span class="categories__item-span">
+            {{ category.name.slice(0, category.name.indexOf("_")) }}
+          </span>
+        </div>
       </template>
-    </swiper>
-    <div class="swiper-next" @click="slider.slideNext()">
-      <rightarrow-icon :width="'35'" :height="'35px'" />
-    </div>
-    <div
-      class="categories-cart"
-      v-if="categoriesFixed"
-      @click="generalStore.openOrCloseCart()"
-    >
-      <shoppingbag-icon fill="#fff" />
-      <span>{{ $t('header.cart') }}</span>
     </div>
   </div>
 </template>
@@ -51,56 +28,15 @@
 <script setup>
 import { ref, reactive, computed, onMounted, watch } from "vue";
 import { useGeneralStore } from "../../stores/general";
-import { Swiper, SwiperSlide } from "swiper/vue";
-import { Navigation } from "swiper/modules";
-import "swiper/css";
-import "swiper/css/navigation";
+import axios from "axios";
 
-const modules = reactive([Navigation]);
 const generalStore = useGeneralStore();
 const categories = computed(() => generalStore.categories);
+const imgUrl = ref("https://sieveserp.ams3.cdn.digitaloceanspaces.com");
 
-const slider = ref(null);
-const onSwiper = (swiper) => {
-  slider.value = swiper;
-};
-
-const breakpoints = reactive({
-  360: {
-    slidesPerView: 1,
-  },
-  460: {
-    slidesPerView: 2,
-  },
-  650: {
-    slidesPerView: 3,
-  },
-  960: {
-    slidesPerView: 4,
-  },
-  1100: {
-    slidesPerView: 5,
-  },
-  1200: {
-    slidesPerView: 6,
-  },
-  1300: {
-    slidesPerView: 7,
-  },
-});
-const categoriesDiv = ref(null);
-let categoriesFixed = ref(false);
 let scrollToCategory;
 
 onMounted(() => {
-  let categoriesOffset = categoriesDiv.value.offsetTop;
-  window.addEventListener("resize", () => {
-    categoriesOffset = categoriesDiv.value.offsetTop;
-  });
-  window.addEventListener("scroll", () => {
-    categoriesFixed.value = window.scrollY >= categoriesOffset ? true : false;
-  });
-
   scrollToCategory = (id) => {
     const selectedCategory = document.querySelector(`#category-${id}`);
     selectedCategory.scrollIntoView({
@@ -109,6 +45,20 @@ onMounted(() => {
       behavior: "smooth",
     });
   };
+
+  const objects = [
+    { name: "Object1", distance: 5 },
+    { name: "Object2", distance: 3 },
+    { name: "Object3", distance: 9 },
+    { name: "Object4", distance: 1 },
+    { name: "Object5", distance: 7 },
+  ];
+
+  const minDistanceObject = objects.reduce((min, current) =>
+    current.distance < min.distance ? current : min
+  );
+
+  console.log("Объект с минимальным значением distance:", minDistanceObject);
 });
 </script>
 

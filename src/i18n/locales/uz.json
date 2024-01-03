@@ -9,7 +9,8 @@
     "vacancy": "Ish O'rinlari",
     "ourAddresses": "Filiallar",
     "contacts": "Kontaktlar",
-    "cart": "Savat"
+    "cart": "Savat",
+    "lang":"Tilni tanlash"
   },
   "product": {
     "addToCart": "Savatga Qo'shish",

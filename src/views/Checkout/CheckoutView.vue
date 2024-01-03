@@ -90,6 +90,10 @@
               :class="{ valid: v$.$error }"
             />
           </div>
+          <div id="map" style="height: 400px"></div>
+          <button @click="getMyLocation">
+            Получить выбранное местоположение
+          </button>
         </div>
         <div class="checkout-form__left-item checkout-form__left-last">
           <div class="checkout-form__left-last-top">
@@ -224,9 +228,17 @@
               </div>
             </label>
           </div>
-          <button class="checkout-pay__modal-btn" @click="sendCard">
-            Продолжить
-          </button>
+          <div class="checkout-pay__modal-btns">
+            <button class="checkout-pay__modal-btn" @click="sendCard">
+              Продолжить
+            </button>
+            <button
+              class="checkout-pay__modal-btn close"
+              @click="(paymentModal = false), (paymentSteps.one = false)"
+            >
+              Отменить
+            </button>
+          </div>
         </div>
         <div class="checkout-pay__modal-code" v-else-if="paymentSteps.two">
           <h3 class="checkout-pay__modal-title">Введите код</h3>
@@ -244,13 +256,40 @@
           <button class="checkout-pay__modal-btn" @click="confirmCard">
             Продолжить
           </button>
+          <button
+            class="checkout-pay__modal-btn"
+            @click="confirmCard"
+            style="width: max-content; padding: 0 5px"
+            disabled
+            id="smsResendButton"
+            v-if="smsResendButtonN"
+          >
+            Отправить код заново (<span id="countdown">
+              {{ smsResendSeconds }}
+            </span>
+            сек)
+          </button>
         </div>
         <div class="checkout-pay__modal-success" v-else-if="paymentSteps.three">
           <h3 class="checkout-pay__modal-title">Успешно!</h3>
           <p class="checkout-pay__modal-sub">
             Вы успешно провели {{ totalPrice }} сум.
           </p>
-          <button class="checkout-pay__modal-btn">Завершить</button>
+          <p class="checkout-pay__modal-sub">
+            Пожалуйста сделайте скриншот чека.
+          </p>
+          <p class="checkout-pay__modal-sub">
+            Для просмотра чека нажмите кнопку ниже.
+          </p>
+          <a
+            class="checkout-pay__modal-btn"
+            :href="qrcodeUrlFromGlobalPay"
+            download=""
+            target="_blank"
+            @click="closePaymentGP"
+          >
+            Чек заказа
+          </a>
         </div>
         <div class="checkout-pay__modal-loader" v-else-if="paymentSteps.loader">
           <span class="loader"></span>
@@ -276,10 +315,10 @@ import { vMaska } from "maska";
 import Swal from "sweetalert2";
 import { useI18n } from "vue-i18n";
 import axios from "axios";
+import qs from "querystring";
 import { v4 as uuidv4 } from "uuid";
 
 const { t } = useI18n();
-
 const formDate = reactive({
   name: "",
   phone: "",
@@ -304,11 +343,8 @@ const paymentSteps = reactive({
   loader: true,
 });
 let paymentModal = ref(false);
-
 const generalStore = useGeneralStore();
 let cartItems = computed(() => generalStore.cart);
-const plusCart = (product) => generalStore.plusCart(product);
-const minusCart = (product) => generalStore.minusCart(product);
 const totalPrice = computed(() => {
   let totalPrice = 0;
   for (const key in generalStore.cart) {
@@ -319,12 +355,12 @@ const totalPrice = computed(() => {
 });
 const paymentType = reactive([
   { id: 1, paymentId: "cash", value: "Cash", title: "checkout.paymentCash" },
-  // {
-  //   id: 2,
-  //   paymentId: "globalpay",
-  //   value: "Global Pay",
-  //   title: "checkout.paymentOnline",
-  // },
+  {
+    id: 2,
+    paymentId: "globalpay",
+    value: "Global Pay",
+    title: "checkout.paymentOnline",
+  },
 ]);
 let smsNotificationNumber = ref(null);
 const gPBU = "https://app.sievesapp.com/v1/public";
@@ -379,19 +415,116 @@ const branches = {
   },
 };
 
+let smsResendSeconds = ref(60);
+let smsResendButtonN = ref(false);
+let qrcodeUrlFromGlobalPay = ref("");
+
+let apiKey = ref("38eaa498-7c2b-4962-8c2b-3b949a49504c");
+let latitude = ref("");
+let longitude = ref("");
+let address = ref("");
+let errorMessageLocation = ref("");
+let errorMessageAddress = ref("");
+let map = reactive({});
+let marker = reactive({});
+let ymaps = reactive({});
+let myLocationPlacemark = reactive({});
+
+const formData = qs.stringify({
+  grant_type: branches.yunusabad.grant_type,
+  client_id: branches.yunusabad.client_id,
+  client_secret: branches.yunusabad.client_secret,
+  username: branches.yunusabad.username,
+  password: branches.yunusabad.password,
+  scope: branches.yunusabad.scope,
+});
+
+// FUNC
+
+const plusCart = (product) => generalStore.plusCart(product);
+const minusCart = (product) => generalStore.minusCart(product);
+
+const getUserLocation = () => {
+  if ("geolocation" in navigator) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        latitude.value = position.coords.latitude;
+        longitude.value = position.coords.longitude;
+      },
+      (error) => {
+        console.error(
+          "Ошибка получения текущего местоположения:",
+          error.message
+        );
+      }
+    );
+  } else {
+    console.error("Ваш браузер не поддерживает геолокацию.");
+  }
+};
+const loadYandexMaps = () => {
+  if (window.ymaps) {
+    ymaps = window.ymaps;
+    initMap();
+  } else {
+    const script = document.createElement("script");
+    script.src = `https://api-maps.yandex.ru/2.1/?apikey=${apiKey}&lang=ru_RU`;
+    script.onload = () => {
+      ymaps = window.ymaps;
+      initMap();
+    };
+    document.head.appendChild(script);
+  }
+};
+const initMap = () => {
+  map = new ymaps.Map("map", {
+    center: [41.339828, 69.310191],
+    zoom: 13,
+  });
+};
+const getMyLocation = () => {
+  if (ymaps && navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition((position) => {
+      const myLocation = [position.coords.latitude, position.coords.longitude];
+      map.setCenter(myLocation);
+
+      // Создаем метку и добавляем ее на карту
+      myLocationPlacemark = new ymaps.Placemark(
+        myLocation,
+        { preset: "islands#geolocationIcon" },
+        {
+          draggable: true,
+          iconColor:"#c00a27"
+        }
+      );
+
+      // Обработчик события при завершении перемещения иконки
+      myLocationPlacemark.events.add("dragend", (e) => {
+        const coords = e.get("target").geometry.getCoordinates();
+        console.log("Новые координаты:", coords);
+        ymaps.geocode(coords).then((result) => {
+          const firstGeoObject = result.geoObjects.get(0);
+          address.value = firstGeoObject.getAddressLine();
+          formDate.address = firstGeoObject.getAddressLine();
+          console.log(firstGeoObject.getAddressLine());
+        });
+      });
+
+      map.geoObjects.add(myLocationPlacemark);
+    });
+  } else {
+    alert("Геолокация не поддерживается вашим браузером или API не загружено.");
+  }
+};
 const getTokenGP = async () => {
   paymentSteps.loader = true;
   axios({
     method: "POST",
     url: `${gPBU}/get-token-pay`,
-    data: {
-      grant_type: branches.yunusabad.grant_type,
-      client_id: branches.yunusabad.client_id,
-      client_secret: branches.yunusabad.client_secret,
-      username: branches.yunusabad.username,
-      password: branches.yunusabad.password,
-      scope: branches.yunusabad.scope,
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
     },
+    data: formData,
   })
     .then((res) => {
       sessionStorage.setItem("access_token", res.data.access_token);
@@ -404,6 +537,15 @@ const getTokenGP = async () => {
     .catch((err) => {
       console.error(err);
     });
+};
+const updateCountdown = () => {
+  if (smsResendSeconds.value > 0) {
+    smsResendSeconds.value -= 1;
+    setTimeout(updateCountdown, 1000); // обновляем каждую секунду
+  } else {
+    document.getElementById("smsResendButton").removeAttribute("disabled");
+    document.getElementById("smsResendButton").textContent = "Отправить код";
+  }
 };
 const sendCard = async () => {
   paymentSteps.one = false;
@@ -424,7 +566,24 @@ const sendCard = async () => {
   })
     .then((res) => {
       if (res.data.detail && !res.data.cardToken) {
-        console.log("hato");
+        Swal.fire({
+          icon: "error",
+          title: `Ошибка`,
+          text: `Данные карты введены не правильно!`,
+          showDenyButton: true,
+          confirmButtonText: `Ввести заного`,
+          denyButtonText: `Отменить`,
+        }).then((result) => {
+          if (result.isConfirmed) {
+            paymentSteps.one = true;
+            paymentSteps.loader = false;
+          } else {
+            paymentModal.value = false;
+            paymentSteps.one = false;
+            paymentSteps.two = false;
+            paymentSteps.three = false;
+          }
+        });
       } else {
         paymentSteps.loader = false;
         paymentSteps.two = true;
@@ -451,8 +610,32 @@ const confirmCard = async () => {
     },
   })
     .then(async (res) => {
-      sessionStorage.setItem("confirmToken", res.data.token);
-      paymentInit();
+      if (res.data.detail && res.data.status) {
+        Swal.fire({
+          icon: "error",
+          title: `Ошибка`,
+          text: `Код из смс введен не правильно`,
+          showDenyButton: true,
+          confirmButtonText: `Ввести заного`,
+          denyButtonText: `Отменить`,
+        }).then((result) => {
+          if (result.isConfirmed) {
+            paymentSteps.loader = false;
+            paymentSteps.two = true;
+            smsCode.value = "";
+            smsResendButtonN.value = true;
+            updateCountdown();
+          } else {
+            paymentModal.value = false;
+            paymentSteps.one = false;
+            paymentSteps.two = false;
+            paymentSteps.three = false;
+          }
+        });
+      } else {
+        sessionStorage.setItem("confirmToken", res.data.token);
+        paymentInit();
+      }
     })
     .catch((err) => {
       console.error(err);
@@ -506,13 +689,14 @@ const paymentPerform = async (paymentInitID) => {
     },
   })
     .then((res) => {
-      console.log(res.data);
+      qrcodeUrlFromGlobalPay.value = res.data.gnkFields.qrcodeUrl;
+      paymentSteps.three = true;
+      paymentSteps.loader = false;
     })
     .catch((err) => {
       console.error(err);
     });
 };
-
 const checkout = async () => {
   const result = await v$.value.$validate();
   if (result && phoneMasked.completed) {
@@ -553,9 +737,21 @@ const checkout = async () => {
     });
   }
 };
+const closePaymentGP = async () => {
+  paymentModal.value = false;
+  paymentSteps.three = false;
+  generalStore.PostOrderInTg(
+    formDate,
+    phoneMasked.unmasked,
+    t("checkout.swal.orderAcceptTitle"),
+    t("checkout.swal.orderAcceptText")
+  );
+};
 
 onMounted(() => {
   generalStore.cart = JSON.parse(localStorage.getItem("cart")) || {};
+  getMyLocation();
+  loadYandexMaps();
 });
 </script>
 

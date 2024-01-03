@@ -102,9 +102,9 @@ export const useGeneralStore = defineStore("general", {
     openOrCloseCart() {
       this.showCart = !this.showCart;
       if (this.showCart) {
-        body.style.overflow = "hidden";
+        document.documentElement.style.overflow = 'hidden';
       } else {
-        body.style.overflow = "unset";
+        document.documentElement.style.overflow = 'auto';
       }
     },
     addCart(product, text) {

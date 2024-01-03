@@ -22,15 +22,16 @@
           <img :src="slide.image" alt="" class="home-swiper__slide-bg" />
         </swiper-slide>
       </swiper>
-      <Categories />
     </div>
+
     <div class="products">
       <template v-for="category in categories">
         <div
           class="products__block"
           v-if="
             !category.name.toLowerCase().includes('ava') &&
-            category.products.length != 0
+            category.products.length != 0 &&
+          category.name != 'Festive (tog’ora)_11_T'
           "
           :id="`category-${category.id}`"
         >
@@ -60,7 +61,6 @@ import sliderImage1 from "@ast/images/slider/homepage-slider-1.jpg";
 import sliderImage2 from "@ast/images/slider/homepage-slider-2.jpg";
 import sliderImage3 from "@ast/images/slider/homepage-slider-3.jpg";
 import sliderImage4 from "@ast/images/slider/homepage-slider-4.jpg";
-import Categories from "@/components/categories/Categories.vue";
 import Product from "@/components/product/Product.vue";
 import { useGeneralStore } from "../../stores/general";
 

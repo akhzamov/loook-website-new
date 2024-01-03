@@ -1,6 +1,6 @@
 <template>
   <div class="loader">
-    <img src="@ast/images/logo.svg" alt="" />
+    <img src="@ast/images/loook-logo.png" alt="" />
   </div>
 </template>
 
