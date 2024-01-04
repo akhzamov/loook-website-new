@@ -54,8 +54,7 @@
           margin: 0px;
           font-size: 40px;
           font-weight: bold;
-          line-height: 48px;
-          letter-spacing: 0.41px;
+          line-height: normal;
           color: black;
 
           @include media(900) {
@@ -63,6 +62,21 @@
           }
           @include media(430) {
             font-size: 25px;
+          }
+        }
+        &-sub {
+          margin: 0px;
+          font-size: 20px;
+          font-weight: 500;
+          line-height: normal;
+          color: black;
+          margin-top: 10px;
+
+          @include media(900) {
+            font-size: 18px;
+          }
+          @include media(430) {
+            font-size: 16px;
           }
         }
         &-inputs {
@@ -98,6 +112,39 @@
               }
             }
           }
+          & textarea {
+            margin-right: 16px;
+            margin-bottom: 0;
+            width: 100%;
+            height: auto;
+            outline: none;
+            padding: 12px 0 12px 12px;
+            font-weight: 500;
+            background: #f6f8f9;
+            font-size: 17px;
+            line-height: 22px;
+            border-radius: 4px;
+            border: 1px solid #f6f8f9;
+            resize: none;
+
+            &.valid {
+              border-color: $color-c00a27;
+              color: $color-c00a27;
+
+              &::placeholder {
+                color: $color-c00a27;
+              }
+            }
+          }
+        }
+
+        & #map {
+          height: 400px;
+          width: 100%;
+          margin-top: 20px;
+          margin-right: 16px;
+          border-radius: 4px;
+          overflow: hidden;
         }
       }
 
@@ -141,6 +188,11 @@
           justify-content: space-between;
           width: 100%;
           margin-bottom: 32px;
+
+          @include media(425) {
+            flex-direction: column;
+            row-gap: 10px;
+          }
 
           &-left {
             display: flex;
@@ -520,8 +572,8 @@
     position: fixed;
     top: 0;
     left: 0;
-    background: rgba(0, 0, 0, 0.3);
-    z-index: 30;
+    backdrop-filter: blur(10px);
+    z-index: 250;
     width: 100%;
     height: 100%;
     display: flex;
@@ -687,6 +739,26 @@
         &:disabled,
         &[disabled] {
           background: #666;
+          color: $color-ffae00;
+          opacity: 0.8;
+          cursor: unset;
+        }
+      }
+      &-btn-resend {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 30px;
+        height: max-content;
+        width: max-content;
+        border: none;
+        color: $color-c00a27;
+        font-size: 16px;
+        font-weight: 500;
+        cursor: pointer;
+
+        &:disabled,
+        &[disabled] {
           color: $color-ffae00;
           opacity: 0.8;
           cursor: unset;

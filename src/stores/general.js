@@ -38,7 +38,7 @@ export const useGeneralStore = defineStore("general", {
       }
       return price.toString().slice(0, pos) + " " + price.toString().slice(pos);
     },
-    async PostOrderInTg(formData, phone, swalTitle, swalText) {
+    async PostOrderInTg(formData, phone, branchName, swalTitle, swalText) {
       let a = "";
       let total = 0;
       let paymentType;
@@ -67,6 +67,7 @@ export const useGeneralStore = defineStore("general", {
 
       const data =
         `Аддресс: ${formData.address}\n` +
+        `Филиал: ${branchName}\n` +
         `Имя: ${formData.name}\n` +
         `Тел: ${phone}\n` +
         `Тип платежа: ${paymentType}\n\n` +
@@ -102,9 +103,9 @@ export const useGeneralStore = defineStore("general", {
     openOrCloseCart() {
       this.showCart = !this.showCart;
       if (this.showCart) {
-        document.documentElement.style.overflow = 'hidden';
+        document.documentElement.style.overflow = "hidden";
       } else {
-        document.documentElement.style.overflow = 'auto';
+        document.documentElement.style.overflow = "auto";
       }
     },
     addCart(product, text) {

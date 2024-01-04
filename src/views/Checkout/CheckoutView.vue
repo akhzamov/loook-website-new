@@ -81,19 +81,21 @@
           <h3 class="checkout-form__left-item-title">
             {{ $t("checkout.address") }}
           </h3>
+          <p class="checkout-form__left-item-sub">
+            {{ $t("checkout.addressPlaceholder") }}
+          </p>
           <div class="checkout-form__left-item-inputs">
-            <input
+            <textarea
               type="text"
               class="checkout-form__left-item-input"
               :placeholder="$t('checkout.addressPlaceholder')"
               v-model="formDate.address"
               :class="{ valid: v$.$error }"
+              disabled
             />
           </div>
           <div id="map" style="height: 400px"></div>
-          <button @click="getMyLocation">
-            Поставить метку
-          </button>
+          <!-- <button @click="getMyLocation">Поставить метку</button> -->
         </div>
         <div class="checkout-form__left-item checkout-form__left-last">
           <div class="checkout-form__left-last-top">
@@ -196,11 +198,11 @@
       <div class="checkout-pay__modal">
         <div class="checkout-pay__modal-add" v-if="paymentSteps.one">
           <h3 class="checkout-pay__modal-title">
-            <span>Введите карту</span>
+            <span>{{ t("checkout.onlinePay.title") }}</span>
           </h3>
           <div class="checkout-pay__modal-add-card">
             <label for="cardNumber" class="checkout-pay__modal-add-card-label">
-              <span>Номер Карты</span>
+              <span>{{ t("checkout.onlinePay.cardNumberTitle") }}</span>
               <div class="checkout-pay__modal-add-card-input">
                 <input
                   type="text"
@@ -216,7 +218,7 @@
               </div>
             </label>
             <label for="cardDate" class="checkout-pay__modal-add-card-label">
-              <span>Срок действия</span>
+              <span>{{ t("checkout.onlinePay.cardDateTitle") }}</span>
               <div class="checkout-pay__modal-add-card-input">
                 <input
                   type="text"
@@ -230,20 +232,22 @@
           </div>
           <div class="checkout-pay__modal-btns">
             <button class="checkout-pay__modal-btn" @click="sendCard">
-              Продолжить
+              {{ t("checkout.onlinePay.continue") }}
             </button>
             <button
               class="checkout-pay__modal-btn close"
               @click="(paymentModal = false), (paymentSteps.one = false)"
             >
-              Отменить
+              {{ t("checkout.onlinePay.cancel") }}
             </button>
           </div>
         </div>
         <div class="checkout-pay__modal-code" v-else-if="paymentSteps.two">
-          <h3 class="checkout-pay__modal-title">Введите код</h3>
+          <h3 class="checkout-pay__modal-title">
+            {{ t("checkout.onlinePay.smsCodeTitle") }}
+          </h3>
           <p class="checkout-pay__modal-sub">
-            Код отправлен на номер <br />
+            {{ t("checkout.onlinePay.smsCodeSub") }} <br />
             {{ smsNotificationNumber }}
           </p>
           <div class="checkout-pay__modal-code-check">
@@ -253,33 +257,32 @@
               v-model="smsCode"
             ></v-otp-input>
           </div>
-          <button class="checkout-pay__modal-btn" @click="confirmCard">
-            Продолжить
-          </button>
           <button
-            class="checkout-pay__modal-btn"
-            @click="confirmCard"
-            style="width: max-content; padding: 0 5px"
+            class="checkout-pay__modal-btn-resend"
+            @click="resendCode"
             disabled
             id="smsResendButton"
-            v-if="smsResendButtonN"
           >
-            Отправить код заново (<span id="countdown">
-              {{ smsResendSeconds }}
-            </span>
-            сек)
+            <span id="countdown"> 00:{{ smsResendSeconds }} </span>
+            {{ t("checkout.onlinePay.smsCodeSec") }}
+          </button>
+          <button class="checkout-pay__modal-btn" @click="confirmCard">
+            {{ t("checkout.onlinePay.continue") }}
           </button>
         </div>
         <div class="checkout-pay__modal-success" v-else-if="paymentSteps.three">
-          <h3 class="checkout-pay__modal-title">Успешно!</h3>
+          <h3 class="checkout-pay__modal-title">
+            {{ t("checkout.onlinePay.successPaymentTitleHead") }}
+          </h3>
           <p class="checkout-pay__modal-sub">
-            Вы успешно провели {{ totalPrice }} сум.
+            {{ t("checkout.onlinePay.successPaymentTitle") }} {{ totalPrice }}
+            {{ t("checkout.onlinePay.successPaymentCurrency") }}.
           </p>
           <p class="checkout-pay__modal-sub">
-            Пожалуйста сделайте скриншот чека.
+            {{ t("checkout.onlinePay.successPaymentScreen") }}
           </p>
           <p class="checkout-pay__modal-sub">
-            Для просмотра чека нажмите кнопку ниже.
+            {{ t("checkout.onlinePay.successPaymentViewCheck") }}
           </p>
           <a
             class="checkout-pay__modal-btn"
@@ -288,7 +291,7 @@
             target="_blank"
             @click="closePaymentGP"
           >
-            Чек заказа
+            {{ t("checkout.onlinePay.successPaymentBtnCheck") }}
           </a>
         </div>
         <div class="checkout-pay__modal-loader" v-else-if="paymentSteps.loader">
@@ -296,9 +299,9 @@
         </div>
         <span class="checkout-pay__modal-powered">Powered by Global Pay</span>
         <span class="checkout-pay__modal-police">
-          ✅ Согласен с
+          ✅ {{ t("checkout.onlinePay.oferta1") }}
           <a href="https://global.uz/agreement" target="_blank">
-            Публичной Офертой
+            {{ t("checkout.onlinePay.oferta2") }}
           </a>
         </span>
       </div>
@@ -355,12 +358,12 @@ const totalPrice = computed(() => {
 });
 const paymentType = reactive([
   { id: 1, paymentId: "cash", value: "Cash", title: "checkout.paymentCash" },
-  // {
-  //   id: 2,
-  //   paymentId: "globalpay",
-  //   value: "Global Pay",
-  //   title: "checkout.paymentOnline",
-  // },
+  {
+    id: 2,
+    paymentId: "globalpay",
+    value: "Global Pay",
+    title: "checkout.paymentOnline",
+  },
 ]);
 let smsNotificationNumber = ref(null);
 const gPBU = "https://app.sievesapp.com/v1/public";
@@ -370,97 +373,147 @@ let uuid = ref(null);
 const branches = {
   yunusabad: {
     grant_type: "password",
-    client_id: "merchants",
-    client_secret: "Z2Kl2hdwcM4gOB27KA72D2t0lX8ryMgZ",
-    username: "yu-swizza-staging@globalpay.uz",
-    password: "yUnkRDqoe72LFKmW3CZL",
+    client_id: "cards",
+    client_secret: "zlQ5XiGtrCOzxj5AxkLKa6WxPP2DkVTS",
+    username: "yu-swizza-prod@globalpay.uz",
+    password: "UrK4fWJfuom6MMjDCaQZ",
     scope: "openid",
-    serviceId: 26,
+    serviceId: 22,
+    name: "Юнусобод",
+    coords: [41.366715, 69.294083],
   },
   chilonzor: {
     grant_type: "password",
-    client_id: "merchants",
-    client_secret: "Z2Kl2hdwcM4gOB27KA72D2t0lX8ryMgZ",
-    username: "ch-foodex-staging@globalpay.uz",
-    password: "wtjLsvqzCYXMzMj3prJr",
+    client_id: "cards",
+    client_secret: "zlQ5XiGtrCOzxj5AxkLKa6WxPP2DkVTS",
+    username: "ch-foodex-prod@globalpay.uz",
+    password: "assNZoEkep8cXLq3C79G",
     scope: "openid",
-    serviceId: 27,
+    serviceId: 23,
+    name: "Чилонзор",
+    coords: [41.276925, 69.201833],
   },
   maximGorkiy: {
     grant_type: "password",
-    client_id: "merchants",
-    client_secret: "Z2Kl2hdwcM4gOB27KA72D2t0lX8ryMgZ",
-    username: "m-smile-staging@globalpay.uz",
-    password: "piJ1f6aJHwvrFdD8bDrk",
+    client_id: "cards",
+    client_secret: "zlQ5XiGtrCOzxj5AxkLKa6WxPP2DkVTS",
+    username: "m-smile-prod@globalpay.uz",
+    password: "yPBqAucoZ2dK07Z1w1dj",
     scope: "openid",
-    serviceId: 28,
+    serviceId: 24,
+    name: "Максим Горький",
+    coords: [41.326423, 69.327293],
   },
   beruniy: {
     grant_type: "password",
-    client_id: "merchants",
-    client_secret: "Z2Kl2hdwcM4gOB27KA72D2t0lX8ryMgZ",
-    username: "b-burgera-staging@globalpay.uz",
-    password: "Ti5G5kMZ9HPrfgzoH1Be",
+    client_id: "cards",
+    client_secret: "zlQ5XiGtrCOzxj5AxkLKa6WxPP2DkVTS",
+    username: "b-burgera-prod@globalpay.uz",
+    password: "UVd0N5ptCGRJ3eQd2ANN",
     scope: "openid",
-    serviceId: 29,
+    serviceId: 25,
+    name: "Беруний",
+    coords: [41.344081, 69.207719],
   },
-  avaPizza: {
-    grant_type: "password",
-    client_id: "merchants",
-    client_secret: "Z2Kl2hdwcM4gOB27KA72D2t0lX8ryMgZ",
-    username: "ava-pizza-staging@globalpay.uz",
-    password: "BrkF2yj0t262bkeWocd8",
-    scope: "openid",
-    serviceId: 30,
-  },
+  // avaPizza: {
+  //   grant_type: "password",
+  //   client_id: "cards",
+  //   client_secret: "zlQ5XiGtrCOzxj5AxkLKa6WxPP2DkVTS",
+  //   username: "ava-pizza-prod@globalpay.uz",
+  //   password: "y7ZfFM4CWc5mnUWcwcbp",
+  //   scope: "openid",
+  //   serviceId: 26,
+  //   name: "АваПицца",
+  //   coords: [41.276925, 69.201833],
+  // },
 };
+let activeBranch;
 
 let smsResendSeconds = ref(60);
 let smsResendButtonN = ref(false);
 let qrcodeUrlFromGlobalPay = ref("");
 
-let apiKey = ref("38eaa498-7c2b-4962-8c2b-3b949a49504c");
-let latitude = ref("");
-let longitude = ref("");
+let apiKey = ref("b9e4054d-f47c-4f0a-99c6-d1bd83383428");
 let address = ref("");
-let errorMessageLocation = ref("");
-let errorMessageAddress = ref("");
 let map = reactive({});
-let marker = reactive({});
 let ymaps = reactive({});
 let myLocationPlacemark = reactive({});
-
-const formData = qs.stringify({
-  grant_type: branches.yunusabad.grant_type,
-  client_id: branches.yunusabad.client_id,
-  client_secret: branches.yunusabad.client_secret,
-  username: branches.yunusabad.username,
-  password: branches.yunusabad.password,
-  scope: branches.yunusabad.scope,
-});
 
 // FUNC
 
 const plusCart = (product) => generalStore.plusCart(product);
 const minusCart = (product) => generalStore.minusCart(product);
 
-const getUserLocation = () => {
-  if ("geolocation" in navigator) {
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        latitude.value = position.coords.latitude;
-        longitude.value = position.coords.longitude;
-      },
-      (error) => {
-        console.error(
-          "Ошибка получения текущего местоположения:",
-          error.message
-        );
-      }
-    );
-  } else {
-    console.error("Ваш браузер не поддерживает геолокацию.");
+const toRadians = (degrees) => {
+  return (degrees * Math.PI) / 180;
+};
+const calculateDistance = (lat1, lon1, lat2, lon2) => {
+  const R = 6371; // Радиус Земли в километрах
+  const dLat = toRadians(lat2 - lat1);
+  const dLon = toRadians(lon2 - lon1);
+
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(toRadians(lat1)) *
+      Math.cos(toRadians(lat2)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+  const distance = R * c; // Расстояние в километрах
+  return distance;
+};
+const addLocationMarker = (coords) => {
+  if (myLocationPlacemark) {
+    map.geoObjects.remove(myLocationPlacemark);
   }
+
+  myLocationPlacemark = new ymaps.Placemark(
+    coords,
+    { preset: "islands#geolocationIcon" },
+    {
+      draggable: true,
+      iconColor: "#c00a27",
+    }
+  );
+  myLocationPlacemark.events.add("dragend", (e) => {
+    const coords = e.get("target").geometry.getCoordinates();
+    getAddressFromLocation(coords);
+    findNearestBranch(coords);
+    ymaps.geocode(coords).then((result) => {
+      const firstGeoObject = result.geoObjects.get(0);
+      address.value = firstGeoObject.getAddressLine();
+      formDate.address = firstGeoObject.getAddressLine();
+      console.log(firstGeoObject.getAddressLine());
+    });
+  });
+
+  map.geoObjects.add(myLocationPlacemark);
+};
+const findNearestBranch = (userCoords) => {
+  let minDistance = Infinity;
+  let closestBranch = null;
+
+  Object.keys(branches).forEach((branchKey) => {
+    const branch = branches[branchKey];
+    const distance = calculateDistance(
+      userCoords[0],
+      userCoords[1],
+      branch.coords[0],
+      branch.coords[1]
+    );
+
+    if (distance < minDistance) {
+      minDistance = distance;
+      closestBranch = branch.name;
+      activeBranch = branch;
+    }
+  });
+
+  // console.log(
+  //   `Ближайший филиал: ${activeBranch.name}, расстояние: ${minDistance} км`
+  // );
 };
 const loadYandexMaps = () => {
   if (window.ymaps) {
@@ -477,12 +530,33 @@ const loadYandexMaps = () => {
   }
 };
 const initMap = () => {
-  map = new ymaps.Map("map", {
-    center: [41.339828, 69.310191],
-    zoom: 13,
-  });
+  if ("geolocation" in navigator) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const userCoords = [
+          position.coords.latitude,
+          position.coords.longitude,
+        ];
+        map = new ymaps.Map("map", {
+          center: userCoords,
+          zoom: 11,
+        });
+        getUserLocation(userCoords);
+        getAddressFromLocation(userCoords);
+        findNearestBranch(userCoords);
+      },
+      (error) => {
+        console.error(
+          "Ошибка получения текущего местоположения:",
+          error.message
+        );
+      }
+    );
+  } else {
+    console.error("Ваш браузер не поддерживает геолокацию.");
+  }
 };
-const getMyLocation = () => {
+const getUserLocation = () => {
   if (ymaps && navigator.geolocation) {
     navigator.geolocation.getCurrentPosition((position) => {
       const myLocation = [position.coords.latitude, position.coords.longitude];
@@ -505,29 +579,34 @@ const getMyLocation = () => {
       // Обработчик события при завершении перемещения иконки
       myLocationPlacemark.events.add("dragend", (e) => {
         const coords = e.get("target").geometry.getCoordinates();
-        console.log("Новые координаты:", coords);
+        // console.log("Новые координаты:", coords);
         ymaps.geocode(coords).then((result) => {
           const firstGeoObject = result.geoObjects.get(0);
           address.value = firstGeoObject.getAddressLine();
           formDate.address = firstGeoObject.getAddressLine();
-          console.log(firstGeoObject.getAddressLine());
+          // console.log(firstGeoObject.getAddressLine());
         });
       });
 
       map.geoObjects.add(myLocationPlacemark);
+      addLocationMarker(myLocation);
       getAddressFromLocation(myLocation);
     });
   } else {
-    alert("Геолокация не поддерживается вашим браузером или API не загружено.");
+    console.log(
+      "Геолокация не поддерживается вашим браузером или API не загружено."
+    );
   }
 };
-
 const getAddressFromLocation = (coords) => {
   ymaps.geocode(coords).then((result) => {
     const firstGeoObject = result.geoObjects.get(0);
     myLocationAddress = firstGeoObject.getAddressLine();
+    address.value = firstGeoObject.getAddressLine();
+    formDate.address = firstGeoObject.getAddressLine();
   });
 };
+
 const getTokenGP = async () => {
   paymentSteps.loader = true;
   axios({
@@ -536,7 +615,14 @@ const getTokenGP = async () => {
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
     },
-    data: formData,
+    data: qs.stringify({
+      grant_type: activeBranch.grant_type,
+      client_id: activeBranch.client_id,
+      client_secret: activeBranch.client_secret,
+      username: activeBranch.username,
+      password: activeBranch.password,
+      scope: activeBranch.scope,
+    }),
   })
     .then((res) => {
       sessionStorage.setItem("access_token", res.data.access_token);
@@ -580,11 +666,11 @@ const sendCard = async () => {
       if (res.data.detail && !res.data.cardToken) {
         Swal.fire({
           icon: "error",
-          title: `Ошибка`,
-          text: `Данные карты введены не правильно!`,
+          title: `${t("checkout.payError.error")}`,
+          text: `${t("checkout.payError.cardNumberError")}`,
           showDenyButton: true,
-          confirmButtonText: `Ввести заного`,
-          denyButtonText: `Отменить`,
+          confirmButtonText: `${t("checkout.payError.reenter")}`,
+          denyButtonText: `${t("checkout.payError.cancel")}`,
         }).then((result) => {
           if (result.isConfirmed) {
             paymentSteps.one = true;
@@ -601,6 +687,7 @@ const sendCard = async () => {
         paymentSteps.two = true;
         cardToken.value = res.data.cardToken;
         smsNotificationNumber.value = res.data.smsNotificationNumber;
+        updateCountdown();
       }
     })
     .catch((err) => {
@@ -625,18 +712,17 @@ const confirmCard = async () => {
       if (res.data.detail && res.data.status) {
         Swal.fire({
           icon: "error",
-          title: `Ошибка`,
-          text: `Код из смс введен не правильно`,
+          title: `${t("checkout.payError.error")}`,
+          text: `${t("checkout.payError.errorOTP")}`,
           showDenyButton: true,
-          confirmButtonText: `Ввести заного`,
-          denyButtonText: `Отменить`,
+          confirmButtonText: `${t("checkout.payError.reenter")}`,
+          denyButtonText: `${t("checkout.payError.cancel")}`,
         }).then((result) => {
           if (result.isConfirmed) {
             paymentSteps.loader = false;
             paymentSteps.two = true;
             smsCode.value = "";
             smsResendButtonN.value = true;
-            updateCountdown();
           } else {
             paymentModal.value = false;
             paymentSteps.one = false;
@@ -665,14 +751,14 @@ const paymentInit = async () => {
     },
     data: {
       externalId: sessionStorage.getItem("externalId"),
-      serviceId: branches.yunusabad.serviceId,
+      serviceId: activeBranch.serviceId,
       paymentFields: [
         {
           value: "UZS",
           name: "currency",
         },
         {
-          value: "100000",
+          value: `${totalPrice.value * 100}`,
           name: "amount",
         },
       ],
@@ -724,6 +810,7 @@ const checkout = async () => {
           generalStore.PostOrderInTg(
             formDate,
             phoneMasked.unmasked,
+            activeBranch.name,
             t("checkout.swal.orderAcceptTitle"),
             t("checkout.swal.orderAcceptText")
           );
@@ -755,18 +842,30 @@ const closePaymentGP = async () => {
   generalStore.PostOrderInTg(
     formDate,
     phoneMasked.unmasked,
+    activeBranch.name,
     t("checkout.swal.orderAcceptTitle"),
     t("checkout.swal.orderAcceptText")
   );
 };
 
-const getGeoDetail = () => {
+const resendCode = async () => {
   axios({
-    method: "GET",
-    url: `${gPBU}/get-geocode`,
+    method: "POST",
+    url: `${gPBU}/send-card`,
+    headers: {
+      Authorization: `${sessionStorage.getItem("access_token")}`,
+    },
+    data: {
+      cardNumber: cardNumMasked.unmasked,
+      expiryDate:
+        cardDateMasked.unmasked.substring(2) +
+        cardDateMasked.unmasked.substring(0, 2),
+      smsNotificationNumber: "",
+    },
   })
     .then((res) => {
-      console.log(res);
+      cardToken.value = res.data.cardToken;
+      smsNotificationNumber.value = res.data.smsNotificationNumber;
     })
     .catch((err) => {
       console.error(err);
@@ -775,9 +874,7 @@ const getGeoDetail = () => {
 
 onMounted(() => {
   generalStore.cart = JSON.parse(localStorage.getItem("cart")) || {};
-  getUserLocation();
   loadYandexMaps();
-  // getGeoDetail()
 });
 </script>
 

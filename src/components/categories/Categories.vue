@@ -45,20 +45,6 @@ onMounted(() => {
       behavior: "smooth",
     });
   };
-
-  const objects = [
-    { name: "Object1", distance: 5 },
-    { name: "Object2", distance: 3 },
-    { name: "Object3", distance: 9 },
-    { name: "Object4", distance: 1 },
-    { name: "Object5", distance: 7 },
-  ];
-
-  const minDistanceObject = objects.reduce((min, current) =>
-    current.distance < min.distance ? current : min
-  );
-
-  console.log("Объект с минимальным значением distance:", minDistanceObject);
 });
 </script>
 

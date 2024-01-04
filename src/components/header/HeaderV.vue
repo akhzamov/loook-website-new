@@ -29,6 +29,9 @@
             >
               <shoppingbag-icon :width="'30'" :height="'30'" :fill="'#fff'" />
               <span>{{ $t("header.cart") }}</span>
+              <span class="lnav__right-cart-count">
+                {{ Object.keys(cart).length }}
+              </span>
             </button>
             <div
               class="lnav__right-lang"
@@ -72,7 +75,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed } from "vue";
+import { ref, reactive, computed, onMounted } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 import Tr from "@/i18n/translation";
@@ -140,6 +143,7 @@ let onOpen = () => {
     document.documentElement.style.overflow = "hidden";
   }
 };
+let cart = computed(() => generalStore.cart);
 
 const switchLanguage = ref(async (lang, img) => {
   const newLocale = lang;

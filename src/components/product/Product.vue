@@ -1,12 +1,15 @@
 <template>
   <div class="products__item">
-    <img v-lazy="photo" alt="" class="products__item-img" />
-    <h4 class="products__item-title">{{ product.name }}</h4>
-    <p class="products__item-price">
-      {{ product.priceList.price.toLocaleString() }} <span>{{$t('product.currency')}}</span>
-    </p>
+    <div class="products__item-top">
+      <img v-lazy="photo" alt="" class="products__item-img" />
+      <h4 class="products__item-title">{{ product.name }}</h4>
+      <p class="products__item-price">
+        {{ product.priceList.price.toLocaleString() }}
+        <span>{{ $t("product.currency") }}</span>
+      </p>
+    </div>
     <button class="products__item-btn" @click="addCart(product)">
-      <span>{{$t('product.addToCart')}}</span>
+      <span>{{ $t("product.addToCart") }}</span>
     </button>
   </div>
 </template>
@@ -26,7 +29,8 @@ const photo = props.product.photo
   ? `https://sieveserp.ams3.cdn.digitaloceanspaces.com/${props.product.photo.path}/${props.product.photo.name}.${props.product.photo.format}`
   : null;
 
-const addCart = (product) => generalStore.addCart(product, `${t("product.added")}`,);
+const addCart = (product) =>
+  generalStore.addCart(product, `${t("product.added")}`);
 </script>
 
 <style lang="scss" scoped></style>

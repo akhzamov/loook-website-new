@@ -43,7 +43,7 @@
     "orders": "Buyurtmangiz",
     "orderCurrency": "so'm",
     "address": "Yetkazib berish manzili",
-    "addressPlaceholder": "Manzil",
+    "addressPlaceholder": "Qizil markerni siljitish orqali manzilingizni tanlang",
     "paymentType": "To'lov turi",
     "paymentCash": "Naqd pul",
     "paymentOnline": "Onlayn to'lov",
@@ -65,6 +65,32 @@
       "oops": "Hatolik...",
       "orderAcceptTitle": "Buyurtmangiz uchun rahmat!",
       "orderAcceptText": "Tez orada operatorimiz siz bilan bog'lanadi."
+    },
+    "onlinePay":{
+      "title":"Kartani kiriting",
+      "cardNumberTitle":"Karta raqami",
+      "cardDateTitle":"Amal qilish muddati",
+      "continue":"Davom etish",
+      "cancel":"Ortga",
+      "smsCodeTitle":"SMS kodni kiriting",
+      "smsCodeSub":"SMS kode quydagi nomerga jonatildi:",
+      "smsCodeSec":"soniya",
+      "successPaymentTitleHead":"Muvaffaqiyatli!",
+      "successPaymentTitle":"Siz",
+      "successPaymentCurrency":"so'm muvaffaqiyatli sarfladingiz",
+      "successPaymentScreen":"Iltimos, chekni skrinshot qilib oling.",
+      "successPaymentViewCheck":"Chekni ko‘rish uchun quyidagi tugmani bosing.",
+      "successPaymentBtnCheck":"Buyurtma cheki",
+      "oferta1":"Men",
+      "oferta2":"Ommaviy Ofertaga Roziman"
+    },
+    "payError":{
+      "error":"Hatolik",
+      "cardNumberError":"Karta ma'lumotlari noto'g'ri kiritilgan!",
+      "reenter":"Qayta kiritish",
+      "cancel":"Ortga",
+      "errorOTP":"SMS kod noto'g'ri kiritildi!",
+      "errorLocation":"Geolocation brauzeringiz tomonidan qo‘llab-quvvatlanmaydi yoki API yuklanmagan."
     }
   },
   "footer": {
