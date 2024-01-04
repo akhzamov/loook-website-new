@@ -25,7 +25,7 @@
           <div class="lnav__right">
             <button
               class="lnav__right-cart"
-              @click="generalStore.openOrCloseCart()"
+              @click="generalStore.openOrCloseCart(), onOpen()"
             >
               <shoppingbag-icon :width="'30'" :height="'30'" :fill="'#fff'" />
               <span>{{ $t("header.cart") }}</span>

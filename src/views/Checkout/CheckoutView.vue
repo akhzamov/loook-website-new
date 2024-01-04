@@ -92,7 +92,7 @@
           </div>
           <div id="map" style="height: 400px"></div>
           <button @click="getMyLocation">
-            Получить выбранное местоположение
+            Поставить метку
           </button>
         </div>
         <div class="checkout-form__left-item checkout-form__left-last">
@@ -486,15 +486,19 @@ const getMyLocation = () => {
   if (ymaps && navigator.geolocation) {
     navigator.geolocation.getCurrentPosition((position) => {
       const myLocation = [position.coords.latitude, position.coords.longitude];
-      map.setCenter(myLocation);
 
-      // Создаем метку и добавляем ее на карту
+      // Удаляем существующую метку, если она уже есть на карте
+      if (myLocationPlacemark) {
+        map.geoObjects.remove(myLocationPlacemark);
+      }
+
+      // Создаем новую метку и добавляем ее на карту
       myLocationPlacemark = new ymaps.Placemark(
         myLocation,
         { preset: "islands#geolocationIcon" },
         {
           draggable: true,
-          iconColor:"#c00a27"
+          iconColor: "#c00a27",
         }
       );
 
@@ -511,10 +515,18 @@ const getMyLocation = () => {
       });
 
       map.geoObjects.add(myLocationPlacemark);
+      getAddressFromLocation(myLocation);
     });
   } else {
     alert("Геолокация не поддерживается вашим браузером или API не загружено.");
   }
+};
+
+const getAddressFromLocation = (coords) => {
+  ymaps.geocode(coords).then((result) => {
+    const firstGeoObject = result.geoObjects.get(0);
+    myLocationAddress = firstGeoObject.getAddressLine();
+  });
 };
 const getTokenGP = async () => {
   paymentSteps.loader = true;
@@ -748,10 +760,24 @@ const closePaymentGP = async () => {
   );
 };
 
+const getGeoDetail = () => {
+  axios({
+    method: "GET",
+    url: `${gPBU}/get-geocode`,
+  })
+    .then((res) => {
+      console.log(res);
+    })
+    .catch((err) => {
+      console.error(err);
+    });
+};
+
 onMounted(() => {
   generalStore.cart = JSON.parse(localStorage.getItem("cart")) || {};
-  getMyLocation();
+  getUserLocation();
   loadYandexMaps();
+  // getGeoDetail()
 });
 </script>
 
