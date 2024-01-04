@@ -2,7 +2,7 @@
   <header class="header">
     <nav class="lnav container">
       <router-link :to="{ name: 'home' }" class="lnav__logo">
-        <img src="@ast/images/loook-logo.png" alt="" />
+        <img src="@ast/images/loook-logo.svg" alt="" />
       </router-link>
       <button class="lnav__left-menu" @click="onOpen">
         <menu-icon :width="'30'" :height="'30'" :fill="'#fff'" />
