@@ -10,8 +10,7 @@
     "ourAddresses": "Branches",
     "contacts": "Contacts",
     "cart": "Cart",
-    "lang":"Select lang"
-    
+    "lang": "Select lang"
   },
   "product": {
     "addToCart": "Add To Cart",
@@ -67,31 +66,33 @@
       "orderAcceptTitle": "Thank you for your order!",
       "orderAcceptText": "Our operator will contact you shortly."
     },
-    "onlinePay":{
-      "title":"Enter card details",
-      "cardNumberTitle":"Card number",
-      "cardDateTitle":"Date of expiry",
-      "continue":"Continue",
-      "cancel":"Cancel",
-      "smsCodeTitle":"Enter SMS code",
-      "smsCodeSub":"Code is send to",
-      "smsCodeSec":"sec",
-      "successPaymentTitleHead":"Success!",
-      "successPaymentTitle":"You have successfully paid",
-      "successPaymentCurrency":"uzs.",
-      "successPaymentScreen":"Please take a screenshot of the receipt.",
-      "successPaymentViewCheck":"To view your receipt, click the button below.",
-      "successPaymentBtnCheck":"Order receipt",
-      "oferta1":"I agree with the",
-      "oferta2":"Public Offer"
+    "onlinePay": {
+      "title": "Enter card details",
+      "cardNumberTitle": "Card number",
+      "cardDateTitle": "Date of expiry",
+      "continue": "Continue",
+      "cancel": "Cancel",
+      "smsCodeTitle": "Enter SMS code",
+      "smsCodeSub": "Code is send to",
+      "smsCodeSec": "sec",
+      "successPaymentTitleHead": "Success!",
+      "successPaymentTitle": "You have successfully paid",
+      "successPaymentCurrency": "uzs.",
+      "successPaymentScreen": "Please take a screenshot of the receipt.",
+      "successPaymentViewCheck": "To view your receipt, click the button below.",
+      "successPaymentBtnCheck": "Order receipt",
+      "oferta1": "I agree with the",
+      "oferta2": "Public Offer"
     },
-    "payError":{
-      "error":"Error",
-      "cardNumberError":"The card details were entered incorrectly!",
-      "reenter":"Enter again",
-      "cancel":"Cancel",
-      "errorOTP":"The SMS code was entered incorrectly!",
-      "errorLocation":"Geolocation is not supported by your browser or the API is not loaded."
+    "payError": {
+      "error": "Error",
+      "cardNumberError": "The card details were entered incorrectly!",
+      "reenter": "Enter again",
+      "cancel": "Cancel",
+      "errorOTP": "The SMS code was entered incorrectly!",
+      "errorLocation": "Geolocation is not supported by your browser or the API is not loaded.",
+      "cardInputNotValid": "Enter your card details!",
+      "smsInputNotValid": "Enter the code from SMS!"
     }
   },
   "footer": {

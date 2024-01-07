@@ -90,7 +90,9 @@
       "reenter":"Qayta kiritish",
       "cancel":"Ortga",
       "errorOTP":"SMS kod noto'g'ri kiritildi!",
-      "errorLocation":"Geolocation brauzeringiz tomonidan qo‘llab-quvvatlanmaydi yoki API yuklanmagan."
+      "errorLocation":"Geolocation brauzeringiz tomonidan qo‘llab-quvvatlanmaydi yoki API yuklanmagan.",
+      "cardInputNotValid": "Karta ma'lumotlarini kiriting!",
+      "smsInputNotValid": "SMS kodini kiriting!"
     }
   },
   "footer": {

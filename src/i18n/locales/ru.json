@@ -10,7 +10,7 @@
     "ourAddresses": "Филиалы",
     "contacts": "Контакты",
     "cart": "Корзина",
-    "lang":"Выбрать язык"
+    "lang": "Выбрать язык"
   },
   "product": {
     "addToCart": "В Корзину",
@@ -66,31 +66,33 @@
       "orderAcceptTitle": "Благодарим за ваш заказ!",
       "orderAcceptText": "В ближайшее время с вами свяжется наш оператор."
     },
-    "onlinePay":{
-      "title":"Введите карту",
-      "cardNumberTitle":"Номер Карты",
-      "cardDateTitle":"Срок действия",
-      "continue":"Продолжить",
-      "cancel":"Отменить",
-      "smsCodeTitle":"Введите код",
-      "smsCodeSub":"Код отправлен на номер",
-      "smsCodeSec":"сек",
-      "successPaymentTitleHead":"Успешно!",
-      "successPaymentTitle":"Вы успешно провели",
-      "successPaymentCurrency":"сум.",
-      "successPaymentScreen":"Пожалуйста сделайте скриншот чека.",
-      "successPaymentViewCheck":"Для просмотра чека нажмите кнопку ниже.",
-      "successPaymentBtnCheck":"Чек заказа",
-      "oferta1":"Согласен с",
-      "oferta2":"Публичной Офертой"
+    "onlinePay": {
+      "title": "Введите карту",
+      "cardNumberTitle": "Номер Карты",
+      "cardDateTitle": "Срок действия",
+      "continue": "Продолжить",
+      "cancel": "Отменить",
+      "smsCodeTitle": "Введите код",
+      "smsCodeSub": "Код отправлен на номер",
+      "smsCodeSec": "сек",
+      "successPaymentTitleHead": "Успешно!",
+      "successPaymentTitle": "Вы успешно провели",
+      "successPaymentCurrency": "сум.",
+      "successPaymentScreen": "Пожалуйста сделайте скриншот чека.",
+      "successPaymentViewCheck": "Для просмотра чека нажмите кнопку ниже.",
+      "successPaymentBtnCheck": "Чек заказа",
+      "oferta1": "Согласен с",
+      "oferta2": "Публичной Офертой"
     },
-    "payError":{
-      "error":"Ошибка",
-      "cardNumberError":"Данные карты введены не правильно!",
-      "reenter":"Ввести заного",
-      "cancel":"Отменить",
-      "errorOTP":"Код из смс введен не правильно!",
-      "errorLocation":"Геолокация не поддерживается вашим браузером или API не загружено."
+    "payError": {
+      "error": "Ошибка",
+      "cardNumberError": "Данные карты введены не правильно!",
+      "reenter": "Ввести заного",
+      "cancel": "Отменить",
+      "errorOTP": "Код из смс введен не правильно!",
+      "errorLocation": "Геолокация не поддерживается вашим браузером или API не загружено.",
+      "cardInputNotValid": "Введите данные карты!",
+      "smsInputNotValid": "Введите код из СМС!"
     }
   },
   "footer": {

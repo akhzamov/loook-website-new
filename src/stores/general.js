@@ -38,7 +38,15 @@ export const useGeneralStore = defineStore("general", {
       }
       return price.toString().slice(0, pos) + " " + price.toString().slice(pos);
     },
-    async PostOrderInTg(formData, phone, branchName, swalTitle, swalText) {
+    async PostOrderInTg(
+      formData,
+      phone,
+      branchName,
+      swalTitle,
+      swalText,
+      latitude,
+      longitude
+    ) {
       let a = "";
       let total = 0;
       let paymentType;
@@ -64,7 +72,6 @@ export const useGeneralStore = defineStore("general", {
         total =
           total + this.cart[key].quantity * this.cart[key].priceList.price;
       }
-
       const data =
         `Аддресс: ${formData.address}\n` +
         `Филиал: ${branchName}\n` +
@@ -74,7 +81,7 @@ export const useGeneralStore = defineStore("general", {
         `🛒 <b>Корзина:</b>\n${a}\n` +
         `<b>Итого</b>: ${this.priceView(total)} сум\n\n` +
         `-----------------------\n` +
-        `Источник: WebSite`;
+        `Источник: WebSite\n`;
       await axios({
         method: "get",
         url: `${telegramUrl}`,

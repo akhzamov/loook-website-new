@@ -1,5 +1,9 @@
 <template>
-  <div class="aside" :class="{ close: !showCart }" @click="showCart = false">
+  <div
+    class="aside"
+    :class="{ close: !showCart }"
+    @click="generalStore.openOrCloseCart()"
+  >
     <div class="aside-cart" @click.stop>
       <div class="aside-cart__close">
         <button @click="generalStore.openOrCloseCart()">
@@ -20,7 +24,10 @@
           </p>
         </div>
         <div class="aside-cart__footer">
-          <button class="aside-cart__footer-btn" @click="showCart = false">
+          <button
+            class="aside-cart__footer-btn"
+            @click="generalStore.openOrCloseCart()"
+          >
             {{ $t("cart.emptyBtn") }}
           </button>
         </div>

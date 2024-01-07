@@ -414,6 +414,8 @@ let map = reactive({});
 let ymaps = reactive({});
 let myLocationPlacemark = reactive({});
 let searchControl;
+let lat = ref(null);
+let lon = ref(null);
 
 // FUNC
 
@@ -461,7 +463,6 @@ const addLocationMarker = (coords) => {
       const firstGeoObject = result.geoObjects.get(0);
       address.value = firstGeoObject.getAddressLine();
       formDate.address = firstGeoObject.getAddressLine();
-      console.log(firstGeoObject.getAddressLine());
     });
   });
 
@@ -521,7 +522,7 @@ const initMap = () => {
         getAddressFromLocation(userCoords);
         findNearestBranch(userCoords);
 
-        map.events.add("hold", (e) => {
+        map.events.add("click", (e) => {
           const coords = e.get("coords");
           moveLocationMarker(coords);
         });
@@ -589,12 +590,15 @@ const getAddressFromLocation = (coords) => {
 };
 
 const moveLocationMarker = (coords) => {
-  // Удалим старый маркер
+  // Remove the old marker
+  lat.value = coords[0];
+  lon.value = coords[1];
+
   if (myLocationPlacemark) {
     map.geoObjects.remove(myLocationPlacemark);
   }
 
-  // Создадим новый маркер
+  // Create a new marker
   myLocationPlacemark = new ymaps.Placemark(
     coords,
     { preset: "islands#geolocationIcon" },
@@ -604,7 +608,7 @@ const moveLocationMarker = (coords) => {
     }
   );
 
-  // Добавим обработчик события при завершении перемещения иконки
+  // Add an event listener for the hold event
   myLocationPlacemark.events.add("hold", (e) => {
     const newCoords = e.get("target").geometry.getCoordinates();
     getAddressFromLocation(newCoords);
@@ -617,12 +621,18 @@ const moveLocationMarker = (coords) => {
     });
   });
 
-  // Добавим новый маркер на карту
+  // Add the new marker to the map
   map.geoObjects.add(myLocationPlacemark);
 
-  // Обновим адрес и найдем ближайший филиал
+  // Trigger geocoding and address update immediately after placing the marker
   getAddressFromLocation(coords);
   findNearestBranch(coords);
+  ymaps.geocode(coords).then((result) => {
+    const firstGeoObject = result.geoObjects.get(0);
+    address.value = firstGeoObject.getAddressLine();
+    formDate.address = firstGeoObject.getAddressLine();
+    // console.log(firstGeoObject.getAddressLine());
+  });
 };
 
 const getTokenGP = async () => {
@@ -656,95 +666,111 @@ const updateCountdown = () => {
   }
 };
 const sendCard = async () => {
-  paymentSteps.one = false;
-  paymentSteps.loader = true;
   let session_id = sessionStorage.getItem("session_id");
-  axios({
-    method: "POST",
-    url: `${gPBU}/send-card`,
-    data: {
-      cardNumber: cardNumMasked.unmasked,
-      expiryDate:
-        cardDateMasked.unmasked.substring(2) +
-        cardDateMasked.unmasked.substring(0, 2),
-      smsNotificationNumber: "",
-      session_id: session_id,
-      branchID: activeBranch.branchID,
-    },
-  })
-    .then((res) => {
-      if (res.data.detail && !res.data.cardToken) {
-        Swal.fire({
-          icon: "error",
-          title: `${t("checkout.payError.error")}`,
-          text: `${t("checkout.payError.cardNumberError")}`,
-          showDenyButton: true,
-          confirmButtonText: `${t("checkout.payError.reenter")}`,
-          denyButtonText: `${t("checkout.payError.cancel")}`,
-        }).then((result) => {
-          if (result.isConfirmed) {
-            paymentSteps.one = true;
-            paymentSteps.loader = false;
-          } else {
-            paymentModal.value = false;
-            paymentSteps.one = false;
-            paymentSteps.two = false;
-            paymentSteps.three = false;
-          }
-        });
-      } else {
-        paymentSteps.loader = false;
-        paymentSteps.two = true;
-        smsNotificationNumber.value = res.data.smsNotificationNumber;
-        updateCountdown();
-      }
+  if (cardNumMasked.completed && cardDateMasked.completed) {
+    paymentSteps.one = false;
+    paymentSteps.loader = true;
+    axios({
+      method: "POST",
+      url: `${gPBU}/send-card`,
+      data: {
+        cardNumber: cardNumMasked.unmasked,
+        expiryDate:
+          cardDateMasked.unmasked.substring(2) +
+          cardDateMasked.unmasked.substring(0, 2),
+        smsNotificationNumber: "",
+        session_id: session_id,
+        branchID: activeBranch.branchID,
+      },
     })
-    .catch((err) => {
-      console.error(err);
+      .then((res) => {
+        if ((res.data.detail && !res.data.cardToken) || res.data.error) {
+          Swal.fire({
+            icon: "error",
+            title: `${t("checkout.payError.error")}`,
+            text: `${t("checkout.payError.cardNumberError")}`,
+            showDenyButton: true,
+            confirmButtonText: `${t("checkout.payError.reenter")}`,
+            denyButtonText: `${t("checkout.payError.cancel")}`,
+          }).then((result) => {
+            if (result.isConfirmed) {
+              paymentSteps.one = true;
+              paymentSteps.loader = false;
+            } else {
+              paymentModal.value = false;
+              paymentSteps.one = false;
+              paymentSteps.two = false;
+              paymentSteps.three = false;
+            }
+          });
+        } else {
+          paymentSteps.loader = false;
+          paymentSteps.two = true;
+          smsNotificationNumber.value = res.data.smsNotificationNumber;
+          updateCountdown();
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  } else {
+    Swal.fire({
+      icon: "error",
+      title: `${t("checkout.payError.error")}`,
+      text: `${t("checkout.payError.cardInputNotValid")}`,
     });
+  }
 };
 const confirmCard = async () => {
-  paymentSteps.two = false;
-  paymentSteps.loader = true;
-  let session_id = sessionStorage.getItem("session_id");
-  axios({
-    method: "POST",
-    url: `${gPBU}/confirm-card`,
-    data: {
-      code: smsCode.value,
-      session_id: session_id,
-      branchID: activeBranch.branchID,
-    },
-  })
-    .then(async (res) => {
-      if (!res.data.confirm) {
-        Swal.fire({
-          icon: "error",
-          title: `${t("checkout.payError.error")}`,
-          text: `${t("checkout.payError.errorOTP")}`,
-          showDenyButton: true,
-          confirmButtonText: `${t("checkout.payError.reenter")}`,
-          denyButtonText: `${t("checkout.payError.cancel")}`,
-        }).then((result) => {
-          if (result.isConfirmed) {
-            paymentSteps.loader = false;
-            paymentSteps.two = true;
-            smsCode.value = "";
-            smsResendButtonN.value = true;
-          } else {
-            paymentModal.value = false;
-            paymentSteps.one = false;
-            paymentSteps.two = false;
-            paymentSteps.three = false;
-          }
-        });
-      } else {
-        paymentInit();
-      }
+  if (smsCode.value != "") {
+    paymentSteps.two = false;
+    paymentSteps.loader = true;
+    let session_id = sessionStorage.getItem("session_id");
+    axios({
+      method: "POST",
+      url: `${gPBU}/confirm-card`,
+      data: {
+        code: smsCode.value,
+        session_id: session_id,
+        branchID: activeBranch.branchID,
+      },
     })
-    .catch((err) => {
-      console.error(err);
+      .then(async (res) => {
+        if (!res.data.confirm) {
+          Swal.fire({
+            icon: "error",
+            title: `${t("checkout.payError.error")}`,
+            text: `${t("checkout.payError.errorOTP")}`,
+            showDenyButton: true,
+            confirmButtonText: `${t("checkout.payError.reenter")}`,
+            denyButtonText: `${t("checkout.payError.cancel")}`,
+          }).then((result) => {
+            if (result.isConfirmed) {
+              paymentSteps.loader = false;
+              paymentSteps.two = true;
+              smsCode.value = "";
+              smsResendButtonN.value = true;
+            } else {
+              paymentModal.value = false;
+              paymentSteps.one = false;
+              paymentSteps.two = false;
+              paymentSteps.three = false;
+            }
+          });
+        } else {
+          paymentInit();
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  } else {
+    Swal.fire({
+      icon: "error",
+      title: `${t("checkout.payError.error")}`,
+      text: `${t("checkout.payError.smsInputNotValid")}`,
     });
+  }
 };
 const paymentInit = async () => {
   uuid.value = uuidv4();
@@ -819,7 +845,9 @@ const checkout = async () => {
             phoneMasked.unmasked,
             activeBranch.name,
             t("checkout.swal.orderAcceptTitle"),
-            t("checkout.swal.orderAcceptText")
+            t("checkout.swal.orderAcceptText"),
+            lat.value,
+            lon.value
           );
         } else {
           paymentModal.value = true;
@@ -851,7 +879,9 @@ const closePaymentGP = async () => {
     phoneMasked.unmasked,
     activeBranch.name,
     t("checkout.swal.orderAcceptTitle"),
-    t("checkout.swal.orderAcceptText")
+    t("checkout.swal.orderAcceptText"),
+    lat.value,
+    lon.value
   );
 };
 

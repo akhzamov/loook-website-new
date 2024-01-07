@@ -1,7 +1,9 @@
 <template>
   <div class="products__item">
     <div class="products__item-top">
-      <img v-lazy="photo" alt="" class="products__item-img" />
+      <div class="products__item-img">
+        <img v-lazy="photo" alt="" />
+      </div>
       <h4 class="products__item-title">{{ product.name }}</h4>
       <p class="products__item-price">
         {{ product.priceList.price.toLocaleString() }}
