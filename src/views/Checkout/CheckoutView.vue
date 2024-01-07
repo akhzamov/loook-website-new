@@ -372,57 +372,32 @@ let uuid = ref(null);
 
 const branches = {
   yunusabad: {
-    grant_type: "password",
-    client_id: "cards",
-    client_secret: "zlQ5XiGtrCOzxj5AxkLKa6WxPP2DkVTS",
-    username: "yu-swizza-prod@globalpay.uz",
-    password: "UrK4fWJfuom6MMjDCaQZ",
-    scope: "openid",
     serviceId: 22,
+    branchID: 3,
     name: "Юнусобод",
     coords: [41.366715, 69.294083],
   },
   chilonzor: {
-    grant_type: "password",
-    client_id: "cards",
-    client_secret: "zlQ5XiGtrCOzxj5AxkLKa6WxPP2DkVTS",
-    username: "ch-foodex-prod@globalpay.uz",
-    password: "assNZoEkep8cXLq3C79G",
-    scope: "openid",
     serviceId: 23,
+    branchID: 5,
     name: "Чилонзор",
     coords: [41.276925, 69.201833],
   },
   maximGorkiy: {
-    grant_type: "password",
-    client_id: "cards",
-    client_secret: "zlQ5XiGtrCOzxj5AxkLKa6WxPP2DkVTS",
-    username: "m-smile-prod@globalpay.uz",
-    password: "yPBqAucoZ2dK07Z1w1dj",
-    scope: "openid",
     serviceId: 24,
+    branchID: 11,
     name: "Максим Горький",
     coords: [41.326423, 69.327293],
   },
   beruniy: {
-    grant_type: "password",
-    client_id: "cards",
-    client_secret: "zlQ5XiGtrCOzxj5AxkLKa6WxPP2DkVTS",
-    username: "b-burgera-prod@globalpay.uz",
-    password: "UVd0N5ptCGRJ3eQd2ANN",
-    scope: "openid",
     serviceId: 25,
+    branchID: 4,
     name: "Беруний",
     coords: [41.344081, 69.207719],
   },
   // avaPizza: {
-  //   grant_type: "password",
-  //   client_id: "cards",
-  //   client_secret: "zlQ5XiGtrCOzxj5AxkLKa6WxPP2DkVTS",
-  //   username: "ava-pizza-prod@globalpay.uz",
-  //   password: "y7ZfFM4CWc5mnUWcwcbp",
-  //   scope: "openid",
-  //   serviceId: 26,
+  // serviceId: 26,
+  // branchID: 15,
   //   name: "АваПицца",
   //   coords: [41.276925, 69.201833],
   // },
@@ -438,6 +413,7 @@ let address = ref("");
 let map = reactive({});
 let ymaps = reactive({});
 let myLocationPlacemark = reactive({});
+let searchControl;
 
 // FUNC
 
@@ -544,6 +520,11 @@ const initMap = () => {
         getUserLocation(userCoords);
         getAddressFromLocation(userCoords);
         findNearestBranch(userCoords);
+
+        map.events.add("hold", (e) => {
+          const coords = e.get("coords");
+          moveLocationMarker(coords);
+        });
       },
       (error) => {
         console.error(
@@ -577,7 +558,7 @@ const getUserLocation = () => {
       );
 
       // Обработчик события при завершении перемещения иконки
-      myLocationPlacemark.events.add("dragend", (e) => {
+      myLocationPlacemark.events.add("hold", (e) => {
         const coords = e.get("target").geometry.getCoordinates();
         // console.log("Новые координаты:", coords);
         ymaps.geocode(coords).then((result) => {
@@ -607,28 +588,57 @@ const getAddressFromLocation = (coords) => {
   });
 };
 
+const moveLocationMarker = (coords) => {
+  // Удалим старый маркер
+  if (myLocationPlacemark) {
+    map.geoObjects.remove(myLocationPlacemark);
+  }
+
+  // Создадим новый маркер
+  myLocationPlacemark = new ymaps.Placemark(
+    coords,
+    { preset: "islands#geolocationIcon" },
+    {
+      draggable: true,
+      iconColor: "#c00a27",
+    }
+  );
+
+  // Добавим обработчик события при завершении перемещения иконки
+  myLocationPlacemark.events.add("hold", (e) => {
+    const newCoords = e.get("target").geometry.getCoordinates();
+    getAddressFromLocation(newCoords);
+    findNearestBranch(newCoords);
+    ymaps.geocode(newCoords).then((result) => {
+      const firstGeoObject = result.geoObjects.get(0);
+      address.value = firstGeoObject.getAddressLine();
+      formDate.address = firstGeoObject.getAddressLine();
+      // console.log(firstGeoObject.getAddressLine());
+    });
+  });
+
+  // Добавим новый маркер на карту
+  map.geoObjects.add(myLocationPlacemark);
+
+  // Обновим адрес и найдем ближайший филиал
+  getAddressFromLocation(coords);
+  findNearestBranch(coords);
+};
+
 const getTokenGP = async () => {
   paymentSteps.loader = true;
+  let session_id = uuidv4();
+  sessionStorage.setItem("session_id", session_id);
   axios({
     method: "POST",
     url: `${gPBU}/get-token-pay`,
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
     data: qs.stringify({
-      grant_type: activeBranch.grant_type,
-      client_id: activeBranch.client_id,
-      client_secret: activeBranch.client_secret,
-      username: activeBranch.username,
-      password: activeBranch.password,
-      scope: activeBranch.scope,
+      serviceId: activeBranch.serviceId,
+      session_id: session_id,
     }),
   })
     .then((res) => {
-      sessionStorage.setItem("access_token", res.data.access_token);
-      sessionStorage.setItem("id_token", res.data.id_token);
-      sessionStorage.setItem("refresh_token", res.data.refresh_token);
-      sessionStorage.setItem("token_type", res.data.token_type);
+      console.log(res.data);
       paymentSteps.loader = false;
       paymentSteps.one = true;
     })
@@ -648,18 +658,18 @@ const updateCountdown = () => {
 const sendCard = async () => {
   paymentSteps.one = false;
   paymentSteps.loader = true;
+  let session_id = sessionStorage.getItem("session_id");
   axios({
     method: "POST",
     url: `${gPBU}/send-card`,
-    headers: {
-      Authorization: `${sessionStorage.getItem("access_token")}`,
-    },
     data: {
       cardNumber: cardNumMasked.unmasked,
       expiryDate:
         cardDateMasked.unmasked.substring(2) +
         cardDateMasked.unmasked.substring(0, 2),
       smsNotificationNumber: "",
+      session_id: session_id,
+      branchID: activeBranch.branchID,
     },
   })
     .then((res) => {
@@ -685,7 +695,6 @@ const sendCard = async () => {
       } else {
         paymentSteps.loader = false;
         paymentSteps.two = true;
-        cardToken.value = res.data.cardToken;
         smsNotificationNumber.value = res.data.smsNotificationNumber;
         updateCountdown();
       }
@@ -697,19 +706,18 @@ const sendCard = async () => {
 const confirmCard = async () => {
   paymentSteps.two = false;
   paymentSteps.loader = true;
+  let session_id = sessionStorage.getItem("session_id");
   axios({
     method: "POST",
     url: `${gPBU}/confirm-card`,
-    headers: {
-      Authorization: `${sessionStorage.getItem("access_token")}`,
-      token: `${cardToken.value}`,
-    },
     data: {
       code: smsCode.value,
+      session_id: session_id,
+      branchID: activeBranch.branchID,
     },
   })
     .then(async (res) => {
-      if (res.data.detail && res.data.status) {
+      if (!res.data.confirm) {
         Swal.fire({
           icon: "error",
           title: `${t("checkout.payError.error")}`,
@@ -731,7 +739,6 @@ const confirmCard = async () => {
           }
         });
       } else {
-        sessionStorage.setItem("confirmToken", res.data.token);
         paymentInit();
       }
     })
@@ -742,16 +749,15 @@ const confirmCard = async () => {
 const paymentInit = async () => {
   uuid.value = uuidv4();
   sessionStorage.setItem("externalId", uuid.value);
+  let session_id = sessionStorage.getItem("session_id");
   axios({
     method: "POST",
     url: `${gPBU}/payment-init`,
-    headers: {
-      Authorization: `${sessionStorage.getItem("access_token")}`,
-      token: `${cardToken.value}`,
-    },
     data: {
       externalId: sessionStorage.getItem("externalId"),
       serviceId: activeBranch.serviceId,
+      session_id: session_id,
+      branchID: activeBranch.branchID,
       paymentFields: [
         {
           value: "UZS",
@@ -765,25 +771,26 @@ const paymentInit = async () => {
     },
   })
     .then((res) => {
-      console.log(res.data);
-      paymentPerform(res.data.id);
+      if (res.data.confirm) {
+        paymentPerform(res.data.id);
+      } else {
+        console.log(res);
+      }
     })
     .catch((err) => {
       console.error(err);
     });
 };
 const paymentPerform = async (paymentInitID) => {
+  let session_id = sessionStorage.getItem("session_id");
   axios({
     method: "POST",
     url: `${gPBU}/payment-perform`,
-    headers: {
-      Authorization: `${sessionStorage.getItem("access_token")}`,
-      token: `${cardToken.value}`,
-    },
     data: {
       externalId: sessionStorage.getItem("externalId"),
-      id: paymentInitID,
-      cardToken: cardToken.value,
+      serviceId: activeBranch.serviceId,
+      session_id: session_id,
+      branchID: activeBranch.branchID,
     },
   })
     .then((res) => {
