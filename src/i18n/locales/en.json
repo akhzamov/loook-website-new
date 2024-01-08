@@ -43,7 +43,7 @@
     "orders": "Your order",
     "orderCurrency": "uzs",
     "address": "Address",
-    "addressPlaceholder": "Select your address by moving the red mark",
+    "addressPlaceholder": "Find yourself on the map and click to select",
     "paymentType": "Payment type",
     "paymentCash": "Cash",
     "paymentOnline": "Online payment",

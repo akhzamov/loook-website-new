@@ -43,7 +43,7 @@
     "orders": "Ваш заказ",
     "orderCurrency": "сум",
     "address": "Адрес доставки",
-    "addressPlaceholder": "Выберите свой адресс передвигая красную метку",
+    "addressPlaceholder": "Найдите себя на карте и кликните что бы выбать",
     "paymentType": "Тип оплаты",
     "paymentCash": "Наличные",
     "paymentOnline": "Онлайн оплата",

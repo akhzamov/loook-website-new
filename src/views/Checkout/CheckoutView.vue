@@ -522,7 +522,37 @@ const initMap = () => {
         getAddressFromLocation(userCoords);
         findNearestBranch(userCoords);
 
+        // Создаем маркер и добавляем его на карту
+        myLocationPlacemark = new ymaps.Placemark(
+          userCoords,
+          { preset: "islands#geolocationIcon" },
+          {
+            draggable: true,
+            iconColor: "#c00a27",
+          }
+        );
+
+        // Добавляем маркер на карту
+        map.geoObjects.add(myLocationPlacemark);
+
+        // Обработчик события при завершении перемещения маркера
+        myLocationPlacemark.events.add("dragend", (e) => {
+          const newCoords = e.get("target").geometry.getCoordinates();
+          getAddressFromLocation(newCoords);
+          findNearestBranch(newCoords);
+          ymaps.geocode(newCoords).then((result) => {
+            const firstGeoObject = result.geoObjects.get(0);
+            address.value = firstGeoObject.getAddressLine();
+            formDate.address = firstGeoObject.getAddressLine();
+          });
+        });
+
+        // Обработчик события клика по карте
         map.events.add("click", (e) => {
+          const coords = e.get("coords");
+          moveLocationMarker(coords);
+        });
+        map.events.add("dragend", (e) => {
           const coords = e.get("coords");
           moveLocationMarker(coords);
         });
@@ -538,6 +568,7 @@ const initMap = () => {
     console.error("Ваш браузер не поддерживает геолокацию.");
   }
 };
+
 const getUserLocation = () => {
   if (ymaps && navigator.geolocation) {
     navigator.geolocation.getCurrentPosition((position) => {
