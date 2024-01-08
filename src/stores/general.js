@@ -45,7 +45,8 @@ export const useGeneralStore = defineStore("general", {
       swalTitle,
       swalText,
       latitude,
-      longitude
+      longitude,
+      online
     ) {
       let a = "";
       let total = 0;
@@ -90,6 +91,8 @@ export const useGeneralStore = defineStore("general", {
         },
         params: {
           text: data,
+          latitude: latitude,
+          longitude: longitude,
         },
       })
         .then(async (res) => {
@@ -101,7 +104,7 @@ export const useGeneralStore = defineStore("general", {
             text: `${swalText}`,
             showConfirmButton: true,
           });
-          router.push("/");
+          online ? '' : router.push("/");
         })
         .catch((err) => {
           console.log(err);

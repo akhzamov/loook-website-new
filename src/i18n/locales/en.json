@@ -64,7 +64,8 @@
       "formErrorText": "Fill the form!",
       "oops": "Oops...",
       "orderAcceptTitle": "Thank you for your order!",
-      "orderAcceptText": "Our operator will contact you shortly."
+      "orderAcceptText": "Our operator will contact you shortly.",
+      "orderPaymentError": "Insufficient funds or problems with your card bank!"
     },
     "onlinePay": {
       "title": "Enter card details",

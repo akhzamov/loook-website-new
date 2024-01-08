@@ -320,8 +320,10 @@ import { useI18n } from "vue-i18n";
 import axios from "axios";
 import qs from "querystring";
 import { v4 as uuidv4 } from "uuid";
+import { useRouter } from "vue-router";
 
 const { t } = useI18n();
+const router = useRouter();
 const formDate = reactive({
   name: "",
   phone: "",
@@ -519,8 +521,6 @@ const initMap = () => {
           zoom: 11,
         });
         getUserLocation(userCoords);
-        getAddressFromLocation(userCoords);
-        findNearestBranch(userCoords);
 
         // Создаем маркер и добавляем его на карту
         myLocationPlacemark = new ymaps.Placemark(
@@ -556,6 +556,10 @@ const initMap = () => {
           const coords = e.get("coords");
           moveLocationMarker(coords);
         });
+
+        // Добавляем метку и сохраняем адрес при загрузке страницы
+        addLocationMarker(userCoords);
+        getAddressFromLocation(userCoords);
       },
       (error) => {
         console.error(
@@ -851,9 +855,31 @@ const paymentPerform = async (paymentInitID) => {
     },
   })
     .then((res) => {
-      qrcodeUrlFromGlobalPay.value = res.data.gnkFields.qrcodeUrl;
-      paymentSteps.three = true;
-      paymentSteps.loader = false;
+      if (res.data.gnkFields) {
+        qrcodeUrlFromGlobalPay.value = res.data.gnkFields.qrcodeUrl;
+        paymentSteps.three = true;
+        paymentSteps.loader = false;
+        generalStore.PostOrderInTg(
+          formDate,
+          phoneMasked.unmasked,
+          activeBranch.name,
+          t("checkout.swal.orderAcceptTitle"),
+          t("checkout.swal.orderAcceptText"),
+          lat.value,
+          lon.value,
+          true
+        );
+      } else if (res.data.error) {
+        Swal.fire({
+          icon: "error",
+          title: `${t("checkout.swal.oops")}`,
+          text: `${t("checkout.swal.orderPaymentError")}`,
+        });
+        paymentModal.value = false;
+        paymentSteps.three = false;
+        paymentSteps.loader = false;
+        
+      }
     })
     .catch((err) => {
       console.error(err);
@@ -878,7 +904,8 @@ const checkout = async () => {
             t("checkout.swal.orderAcceptTitle"),
             t("checkout.swal.orderAcceptText"),
             lat.value,
-            lon.value
+            lon.value,
+            false
           );
         } else {
           paymentModal.value = true;
@@ -905,15 +932,7 @@ const checkout = async () => {
 const closePaymentGP = async () => {
   paymentModal.value = false;
   paymentSteps.three = false;
-  generalStore.PostOrderInTg(
-    formDate,
-    phoneMasked.unmasked,
-    activeBranch.name,
-    t("checkout.swal.orderAcceptTitle"),
-    t("checkout.swal.orderAcceptText"),
-    lat.value,
-    lon.value
-  );
+  router.push("/");
 };
 
 const resendCode = async () => {

@@ -64,7 +64,8 @@
       "formErrorText": "Formani to'ldiring!",
       "oops": "Hatolik...",
       "orderAcceptTitle": "Buyurtmangiz uchun rahmat!",
-      "orderAcceptText": "Tez orada operatorimiz siz bilan bog'lanadi."
+      "orderAcceptText": "Tez orada operatorimiz siz bilan bog'lanadi.",
+      "orderPaymentError": "Pul yetarli emas yoki bank kartasi bilan bog'liq muammolar!"
     },
     "onlinePay":{
       "title":"Kartani kiriting",
