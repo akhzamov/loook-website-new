@@ -47,6 +47,7 @@
     "paymentType": "Payment type",
     "paymentCash": "Cash",
     "paymentOnline": "Online payment",
+    "paymentCard": "Terminal",
     "total": "Total",
     "orderSum": "Order price",
     "deliveryPrice": "Delivery price",

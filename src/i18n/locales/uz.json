@@ -47,6 +47,7 @@
     "paymentType": "To'lov turi",
     "paymentCash": "Naqd pul",
     "paymentOnline": "Onlayn to'lov",
+    "paymentCard": "Terminal",
     "total": "Jami",
     "orderSum": "Buyurtma narxi",
     "deliveryPrice": "Yetkazib berish narxi",

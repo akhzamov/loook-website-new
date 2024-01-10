@@ -47,6 +47,7 @@
     "paymentType": "Тип оплаты",
     "paymentCash": "Наличные",
     "paymentOnline": "Онлайн оплата",
+    "paymentCard": "Терминал",
     "total": "Итого",
     "orderSum": "Стоимость заказа",
     "deliveryPrice": "Цена доставки",

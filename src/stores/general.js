@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { instance, telegramUrl } from "../axios";
+import { instance, telegramUrl, telegramDebUrl } from "../axios";
 import Swal from "sweetalert2";
 import axios from "axios";
 import router from "../router";
@@ -96,15 +96,38 @@ export const useGeneralStore = defineStore("general", {
         },
       })
         .then(async (res) => {
-          this.cart = {};
-          localStorage.removeItem("cart");
-          await Swal.fire({
-            icon: "success",
-            title: `${swalTitle}`,
-            text: `${swalText}`,
-            showConfirmButton: true,
-          });
-          online ? '' : router.push("/");
+          if (res.data != true) {
+            this.PostOrderInTg();
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+
+      await axios({
+        method: "get",
+        url: `${telegramDebUrl}`,
+        headers: {
+          "Content-Type": "application/json; charset=UTF-8",
+        },
+        params: {
+          text: data,
+          latitude: latitude,
+          longitude: longitude,
+        },
+      })
+        .then(async (res) => {
+          if (res.data) {
+            await Swal.fire({
+              icon: "success",
+              title: `${swalTitle}`,
+              text: `${swalText}`,
+              showConfirmButton: true,
+            });
+            this.cart = {};
+            localStorage.removeItem("cart");
+            online ? "" : router.push("/");
+          }
         })
         .catch((err) => {
           console.log(err);

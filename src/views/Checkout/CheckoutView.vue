@@ -114,6 +114,7 @@
                 :class="{
                   active: formDate.payment == payment.value,
                   valid: v$.$error,
+                  disabled: isOrderButtonDisabled && payment.id === 2,
                 }"
               >
                 <input
@@ -122,6 +123,7 @@
                   :id="payment.paymentId"
                   :value="payment.value"
                   v-model="formDate.payment"
+                  :disabled="isOrderButtonDisabled && payment.id === 2"
                 />
 
                 <span class="checkout-form__left-last-payment-icon">
@@ -275,10 +277,6 @@
             {{ t("checkout.onlinePay.successPaymentTitleHead") }}
           </h3>
           <p class="checkout-pay__modal-sub">
-            {{ t("checkout.onlinePay.successPaymentTitle") }} {{ totalPrice }}
-            {{ t("checkout.onlinePay.successPaymentCurrency") }}.
-          </p>
-          <p class="checkout-pay__modal-sub">
             {{ t("checkout.onlinePay.successPaymentScreen") }}
           </p>
           <p class="checkout-pay__modal-sub">
@@ -366,7 +364,35 @@ const paymentType = reactive([
     value: "Global Pay",
     title: "checkout.paymentOnline",
   },
+  {
+    id: 3,
+    paymentId: "card",
+    value: "Card",
+    title: "checkout.paymentCard",
+  },
 ]);
+
+const isOrderButtonDisabled = ref(false);
+
+const checkTime = () => {
+  const currentTime = new Date();
+  const tashkentTime = new Date(currentTime.getTime());
+
+  // console.log(tashkentTime.getHours() >= 17 && tashkentTime.getHours() < 19);
+  isOrderButtonDisabled.value =
+    tashkentTime.getHours() >= 22 && tashkentTime.getHours() < 10;
+};
+
+// const scheduleCheck = () => {
+//   const check = () => {
+//     checkTime();
+//     requestAnimationFrame(check);
+//   };
+//   check();
+// };
+
+// scheduleCheck();
+
 let smsNotificationNumber = ref(null);
 const gPBU = "https://app.sievesapp.com/v1/public";
 let cardToken = ref(null);
@@ -403,6 +429,12 @@ const branches = {
   //   name: "АваПицца",
   //   coords: [41.276925, 69.201833],
   // },
+  // boulevardLook: {
+  //   serviceId: 27,
+  //   branchID: 14,
+  //   name: "Сити Бульвар",
+  //   coords: [41.313989, 69.244379],
+  // },
 };
 let activeBranch;
 
@@ -415,7 +447,6 @@ let address = ref("");
 let map = reactive({});
 let ymaps = reactive({});
 let myLocationPlacemark = reactive({});
-let searchControl;
 let lat = ref(null);
 let lon = ref(null);
 
@@ -520,9 +551,6 @@ const initMap = () => {
           center: userCoords,
           zoom: 11,
         });
-        getUserLocation(userCoords);
-
-        // Создаем маркер и добавляем его на карту
         myLocationPlacemark = new ymaps.Placemark(
           userCoords,
           { preset: "islands#geolocationIcon" },
@@ -534,30 +562,10 @@ const initMap = () => {
 
         // Добавляем маркер на карту
         map.geoObjects.add(myLocationPlacemark);
-
-        // Обработчик события при завершении перемещения маркера
-        myLocationPlacemark.events.add("dragend", (e) => {
-          const newCoords = e.get("target").geometry.getCoordinates();
-          getAddressFromLocation(newCoords);
-          findNearestBranch(newCoords);
-          ymaps.geocode(newCoords).then((result) => {
-            const firstGeoObject = result.geoObjects.get(0);
-            address.value = firstGeoObject.getAddressLine();
-            formDate.address = firstGeoObject.getAddressLine();
-          });
-        });
-
-        // Обработчик события клика по карте
         map.events.add("click", (e) => {
           const coords = e.get("coords");
           moveLocationMarker(coords);
         });
-        map.events.add("dragend", (e) => {
-          const coords = e.get("coords");
-          moveLocationMarker(coords);
-        });
-
-        // Добавляем метку и сохраняем адрес при загрузке страницы
         addLocationMarker(userCoords);
         getAddressFromLocation(userCoords);
       },
@@ -572,49 +580,6 @@ const initMap = () => {
     console.error("Ваш браузер не поддерживает геолокацию.");
   }
 };
-
-const getUserLocation = () => {
-  if (ymaps && navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition((position) => {
-      const myLocation = [position.coords.latitude, position.coords.longitude];
-
-      // Удаляем существующую метку, если она уже есть на карте
-      if (myLocationPlacemark) {
-        map.geoObjects.remove(myLocationPlacemark);
-      }
-
-      // Создаем новую метку и добавляем ее на карту
-      myLocationPlacemark = new ymaps.Placemark(
-        myLocation,
-        { preset: "islands#geolocationIcon" },
-        {
-          draggable: true,
-          iconColor: "#c00a27",
-        }
-      );
-
-      // Обработчик события при завершении перемещения иконки
-      myLocationPlacemark.events.add("hold", (e) => {
-        const coords = e.get("target").geometry.getCoordinates();
-        // console.log("Новые координаты:", coords);
-        ymaps.geocode(coords).then((result) => {
-          const firstGeoObject = result.geoObjects.get(0);
-          address.value = firstGeoObject.getAddressLine();
-          formDate.address = firstGeoObject.getAddressLine();
-          // console.log(firstGeoObject.getAddressLine());
-        });
-      });
-
-      map.geoObjects.add(myLocationPlacemark);
-      addLocationMarker(myLocation);
-      getAddressFromLocation(myLocation);
-    });
-  } else {
-    console.log(
-      "Геолокация не поддерживается вашим браузером или API не загружено."
-    );
-  }
-};
 const getAddressFromLocation = (coords) => {
   ymaps.geocode(coords).then((result) => {
     const firstGeoObject = result.geoObjects.get(0);
@@ -623,7 +588,6 @@ const getAddressFromLocation = (coords) => {
     formDate.address = firstGeoObject.getAddressLine();
   });
 };
-
 const moveLocationMarker = (coords) => {
   // Remove the old marker
   lat.value = coords[0];
@@ -854,12 +818,9 @@ const paymentPerform = async (paymentInitID) => {
       branchID: activeBranch.branchID,
     },
   })
-    .then((res) => {
+    .then(async (res) => {
       if (res.data.gnkFields) {
-        qrcodeUrlFromGlobalPay.value = res.data.gnkFields.qrcodeUrl;
-        paymentSteps.three = true;
-        paymentSteps.loader = false;
-        generalStore.PostOrderInTg(
+        await generalStore.PostOrderInTg(
           formDate,
           phoneMasked.unmasked,
           activeBranch.name,
@@ -869,6 +830,9 @@ const paymentPerform = async (paymentInitID) => {
           lon.value,
           true
         );
+        qrcodeUrlFromGlobalPay.value = res.data.gnkFields.qrcodeUrl;
+        paymentSteps.three = true;
+        paymentSteps.loader = false;
       } else if (res.data.error) {
         Swal.fire({
           icon: "error",
@@ -878,7 +842,6 @@ const paymentPerform = async (paymentInitID) => {
         paymentModal.value = false;
         paymentSteps.three = false;
         paymentSteps.loader = false;
-        
       }
     })
     .catch((err) => {
@@ -896,7 +859,7 @@ const checkout = async () => {
       denyButtonText: `${t("checkout.swal.checkOrderNo")}`,
     }).then(async (result) => {
       if (result.isConfirmed) {
-        if (formDate.payment == "Cash") {
+        if (formDate.payment != "Global Pay") {
           generalStore.PostOrderInTg(
             formDate,
             phoneMasked.unmasked,
@@ -962,6 +925,8 @@ const resendCode = async () => {
 onMounted(() => {
   generalStore.cart = JSON.parse(localStorage.getItem("cart")) || {};
   loadYandexMaps();
+  checkTime();
+  // scheduleCheck();
 });
 </script>
 
